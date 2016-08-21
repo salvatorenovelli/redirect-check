@@ -15,7 +15,7 @@ public class Application {
 }
 
 @EnableBinding(Processor.class)
-class RedirectSpecSource {
+class RedirectSpecificationProcessor {
     @StreamListener(Processor.INPUT)
     public void handle(RedirectSpecification spec) {
         System.out.println("Received spec: " + spec);
