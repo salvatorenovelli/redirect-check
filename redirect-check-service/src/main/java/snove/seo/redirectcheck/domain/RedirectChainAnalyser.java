@@ -1,11 +1,10 @@
-package snove.seo.redirectcheck;
+package snove.seo.redirectcheck.domain;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import snove.seo.redirectcheck.domain.HttpRequestFactory;
 import snove.seo.redirectcheck.model.HttpResponse;
 import snove.seo.redirectcheck.model.RedirectChain;
 import snove.seo.redirectcheck.model.exception.RedirectLoopException;

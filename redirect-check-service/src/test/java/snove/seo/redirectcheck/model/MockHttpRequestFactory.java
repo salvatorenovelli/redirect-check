@@ -1,10 +1,9 @@
-package snove.seo.redirectcheck;
+package snove.seo.redirectcheck.model;
 
 
 import org.springframework.http.HttpStatus;
 import snove.seo.redirectcheck.domain.HttpRequest;
 import snove.seo.redirectcheck.domain.HttpRequestFactory;
-import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
 import java.net.URI;
