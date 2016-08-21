@@ -1,10 +1,11 @@
-package snove.seo.redirectcheck.model;
+package snove.seo.redirectcheck.domain;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
+import snove.seo.redirectcheck.model.RedirectChain;
 
 import java.net.URI;
 
