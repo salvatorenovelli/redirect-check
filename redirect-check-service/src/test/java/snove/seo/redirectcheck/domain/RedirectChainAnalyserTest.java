@@ -4,10 +4,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
-import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
-import snove.seo.redirectcheck.model.RedirectChain;
 
 import java.net.URI;
+
+import snove.seo.redirectcheck.model.RedirectChain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,7 +29,6 @@ public class RedirectChainAnalyserTest {
 
         assertThat(redirectChain.isValid(), is(true));
     }
-
 
     @Test
     public void noRedirectShouldBeOK() throws Exception {
@@ -58,7 +57,6 @@ public class RedirectChainAnalyserTest {
         assertThat(redirectChain.getLastStatus(), is(HttpStatus.OK));
     }
 
-
     @Test
     public void redirectLoopShouldMarkTheChainAsInvalid() throws Exception {
         givenAScenario()
@@ -69,7 +67,20 @@ public class RedirectChainAnalyserTest {
 
         assertThat(redirectChain.isValid(), is(false));
         assertThat(redirectChain.getStatus(), is(RedirectChain.REDIRECT_LOOP));
+    }
 
+    @Test
+    public void shouldRecognizeComplexRedirectLoop() throws Exception {
+        givenAScenario()
+                .withRedirect("http://www.example.com/1", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/2")
+                .withRedirect("http://www.example.com/2", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/3")
+                .withRedirect("http://www.example.com/3", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/4")
+                .withRedirect("http://www.example.com/4", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/2");
+
+        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com/1"));
+
+        assertThat(redirectChain.isValid(), is(false));
+        assertThat(redirectChain.getStatus(), is(RedirectChain.REDIRECT_LOOP));
     }
 
     @Test

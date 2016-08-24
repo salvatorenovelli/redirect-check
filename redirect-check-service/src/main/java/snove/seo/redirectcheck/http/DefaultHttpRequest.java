@@ -60,23 +60,4 @@ public final class DefaultHttpRequest implements HttpRequest {
                 .replaceAll("%29", ")")
                 .replaceAll("%7E", "~");
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DefaultHttpRequest that = (DefaultHttpRequest) o;
-
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
-        return method == that.method;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + (method != null ? method.hashCode() : 0);
-        return result;
-    }
 }
