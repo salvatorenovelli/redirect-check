@@ -5,16 +5,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import snove.seo.redirectcheck.model.HttpResponse;
-import snove.seo.redirectcheck.model.RedirectChain;
-import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.springframework.http.HttpStatus.*;
+import snove.seo.redirectcheck.model.HttpResponse;
+import snove.seo.redirectcheck.model.RedirectChain;
+import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
+import static org.springframework.http.HttpStatus.FOUND;
+import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
+import static org.springframework.http.HttpStatus.SEE_OTHER;
+
+
+/**
+ * Open connection to a given URI and follow the path if the request is redirected. Produces a
+ * {@link RedirectChain}
+ */
 public class RedirectChainAnalyser {
 
 
@@ -27,6 +35,9 @@ public class RedirectChainAnalyser {
     }
 
     /**
+     * Open an HTTP connection to the provided {@link URI} and follow the redirects if they exists.
+     *
+     * @return an object that describes the chain of redirect that the startURI lead to.
      *
      * */
     public RedirectChain analyseRedirectChain(URI startURI) {
