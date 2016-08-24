@@ -22,17 +22,14 @@ public final class DefaultHttpRequest implements HttpRequest {
         this.method = method;
     }
 
-
     @Override
     public HttpResponse execute() throws IOException, URISyntaxException {
-
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
 
         connection.setRequestMethod(method.name());
         connection.setInstanceFollowRedirects(false);
         connection.connect();
-
 
         URI dstURI = uri;
 
@@ -56,14 +53,12 @@ public final class DefaultHttpRequest implements HttpRequest {
     }
 
     private String encodeURIComponent(String s) {
-
-        return s
-                .replaceAll("\\s", "%20")
-                .replaceAll("\\%21", "!")
-                .replaceAll("\\%27", "'")
-                .replaceAll("\\%28", "(")
-                .replaceAll("\\%29", ")")
-                .replaceAll("\\%7E", "~");
+        return s.replaceAll("%20", "\\s")
+                .replaceAll("%21", "!")
+                .replaceAll("%27", "'")
+                .replaceAll("%28", "(")
+                .replaceAll("%29", ")")
+                .replaceAll("%7E", "~");
     }
 
     @Override
