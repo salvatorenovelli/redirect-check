@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,13 +41,13 @@ public class HttpGetRequestTest {
     public void usesGetMethod() throws Exception {
 
         givenAnHttpServer()
-                .withPermanentlyRedirect("/source", "/destination")
+                .withMovedPermanently("/source", "/destination")
                 .run();
 
-        HttpGetRequest sut = new HttpGetRequest(testUri("/source"));
+        HttpGetRequest sut = new HttpGetRequest(testUri("/source/"));
         HttpResponse execute = sut.execute();
 
-        assertThat(execute.getStatusCode(), is(301));
+        assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
 
 
     }
