@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
-public final class DefaultHttpRequest implements HttpRequest {
+public class DefaultHttpRequest implements HttpRequest {
 
     private final URI uri;
     private final HttpMethod method;

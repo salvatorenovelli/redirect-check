@@ -10,7 +10,7 @@ import java.net.URI;
 
 
 @Component
-public class DefaultHttpConnectorFactory implements HttpRequestFactory {
+public class DefaultHttpRequestFactory implements HttpRequestFactory {
     @Override
     public HttpRequest createRequest(URI httpURI) {
         return new DefaultHttpRequest(httpURI, HttpMethod.GET);
