@@ -3,23 +3,24 @@ package snove.seo.redirectcheck.http;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import snove.seo.redirectcheck.domain.HttpRequest;
-import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import snove.seo.redirectcheck.domain.HttpRequest;
+import snove.seo.redirectcheck.model.HttpResponse;
 
-public class DefaultHttpRequest implements HttpRequest {
+
+public class HttpGetRequest implements HttpRequest {
 
     private final URI uri;
-    private final HttpMethod method;
 
-    public DefaultHttpRequest(URI uri, HttpMethod method) {
+
+    public HttpGetRequest(URI uri) {
         this.uri = uri;
-        this.method = method;
+
     }
 
     @Override
@@ -27,7 +28,7 @@ public class DefaultHttpRequest implements HttpRequest {
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
 
-        connection.setRequestMethod(method.name());
+        connection.setRequestMethod(HttpMethod.GET.name());
         connection.setInstanceFollowRedirects(false);
         connection.connect();
 

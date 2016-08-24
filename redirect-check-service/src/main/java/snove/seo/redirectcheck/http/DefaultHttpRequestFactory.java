@@ -13,6 +13,6 @@ import java.net.URI;
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
     @Override
     public HttpRequest createRequest(URI httpURI) {
-        return new DefaultHttpRequest(httpURI, HttpMethod.GET);
+        return new HttpGetRequest(httpURI);
     }
 }
