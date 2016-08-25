@@ -38,19 +38,43 @@ public class HttpGetRequestTest {
     }
 
     @Test
-    public void usesGetMethod() throws Exception {
-
+    public void usesGetOn301WithRelativeDstPath() throws Exception {
         givenAnHttpServer()
-                .with_301_MovedPermanently("/source", "/destination")
+                .with_301_MovedPermanently("/source", "/relative_destination")
                 .run();
 
-        HttpGetRequest sut = new HttpGetRequest(testUri("/source"));
-        HttpResponse execute = sut.execute();
+        HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
 
         assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
-        assertThat(execute.getLocation(), is(testUri("/destination")));
+        assertThat(execute.getLocation(), is(testUri("/relative_destination")));
+    }
+
+    @Test
+    public void usesGetOn301WithAbsoluteDstPath() throws Exception {
+        givenAnHttpServer()
+                .with_301_MovedPermanently("/source", "http://absolute_destination")
+                .run();
+
+        HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
+
+        assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
+        assertThat(execute.getLocation(), is(new URI("http://absolute_destination")));
+    }
 
 
+    @Test
+    public void getOn200() throws Exception {
+
+        givenAnHttpServer()
+                .with_200_Ok("/hello")
+                .run();
+
+        HttpResponse execute = new HttpGetRequest(testUri("/hello")).execute();
+
+        assertThat(execute.getStatus(), is(HttpStatus.OK));
+        assertThat(execute.getLocation(), is(testUri("/hello")));
+
+        System.out.println("execute = " + execute);
     }
 
     private TestServerScenarioBuilder givenAnHttpServer() {

@@ -4,9 +4,13 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.ServletException;
@@ -15,15 +19,18 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestServerScenarioBuilder {
 
+    private static final Logger logger = LoggerFactory.getLogger(TestServerScenarioBuilder.class);
     private final Server server;
-    private final Map<String, Redirect> redirects = new TreeMap<>();
+    private final Map<String, Redirect> redirectedLocations = new TreeMap<>();
+    private final Set<String> servedLocations = new HashSet<>();
+
 
     public TestServerScenarioBuilder(Server server) {
         this.server = server;
     }
 
     public TestServerScenarioBuilder with_301_MovedPermanently(String source, String destination) throws Exception {
-        redirects.put(source, new Redirect(301, destination));
+        redirectedLocations.put(source, new Redirect(301, destination));
         return this;
     }
 
@@ -32,9 +39,29 @@ public class TestServerScenarioBuilder {
         server.start();
     }
 
-    private void handleAsRedirect(String s, Response httpServletResponse) throws IOException {
-        final Redirect redirect = redirects.get(s);
-        httpServletResponse.sendRedirect(redirect.httpStatusCode, redirect.dstPath);
+    public TestServerScenarioBuilder with_200_Ok(String location) {
+        servedLocations.add(location);
+        return this;
+    }
+
+    private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
+        final Redirect redirect = redirectedLocations.get(s);
+        httpServletResponse.setHeader("Location", redirect.dstPath);
+        httpServletResponse.setStatus(redirect.httpStatusCode);
+    }
+
+    private void handleAsServed(String s, HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private static class Redirect {
+        final String dstPath;
+        final int httpStatusCode;
+
+        public Redirect(int httpStatusCode, String dstPath) {
+            this.dstPath = dstPath;
+            this.httpStatusCode = httpStatusCode;
+        }
     }
 
     /**
@@ -46,19 +73,15 @@ public class TestServerScenarioBuilder {
     private class NonSmartHandler extends AbstractHandler {
         @Override
         public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
-            if (redirects.containsKey(s)) {
-                handleAsRedirect(s, (Response) httpServletResponse);
+            if (redirectedLocations.containsKey(s)) {
+                handleAsRedirect(s, httpServletResponse);
+                request.setHandled(true);
             }
-        }
-    }
 
-    private static class Redirect {
-        final String dstPath;
-        final int httpStatusCode;
-
-        public Redirect(int httpStatusCode, String dstPath) {
-            this.dstPath = dstPath;
-            this.httpStatusCode = httpStatusCode;
+            if (servedLocations.contains(s)) {
+                handleAsServed(s, httpServletResponse);
+                request.setHandled(true);
+            }
         }
     }
 
