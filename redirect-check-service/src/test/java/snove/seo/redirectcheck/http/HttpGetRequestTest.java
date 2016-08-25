@@ -41,13 +41,14 @@ public class HttpGetRequestTest {
     public void usesGetMethod() throws Exception {
 
         givenAnHttpServer()
-                .withMovedPermanently("/source", "/destination")
+                .with_301_MovedPermanently("/source", "/destination")
                 .run();
 
-        HttpGetRequest sut = new HttpGetRequest(testUri("/source/"));
+        HttpGetRequest sut = new HttpGetRequest(testUri("/source"));
         HttpResponse execute = sut.execute();
 
         assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
+        assertThat(execute.getLocation(), is(testUri("/destination")));
 
 
     }
