@@ -3,6 +3,7 @@ package snove.seo.redirectcheck.http;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ public class TestServerScenarioBuilder {
     public void run() throws Exception {
         server.setHandler(new NonSmartHandler());
         server.start();
+        logger.info("Test server listening on http://localhost:{}", ((ServerConnector) server.getConnectors()[0]).getLocalPort());
     }
 
     public TestServerScenarioBuilder with_200_Ok(String location) {
