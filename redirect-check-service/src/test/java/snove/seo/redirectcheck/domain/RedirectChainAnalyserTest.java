@@ -85,7 +85,7 @@ public class RedirectChainAnalyserTest {
 
     @Test
     public void shouldMarkAsInvalidInCaseOfIOException() throws Exception {
-        String errorMessage = "Unable to connect";
+        String errorMessage = "This is a test exception, everything is fine :)";
         givenAScenario()
                 .withIOException("http://www.example.com", errorMessage);
 
