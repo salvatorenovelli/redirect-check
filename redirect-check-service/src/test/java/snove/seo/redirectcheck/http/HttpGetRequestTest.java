@@ -6,8 +6,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import java.net.URI;
@@ -51,6 +49,30 @@ public class HttpGetRequestTest {
 
         assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
         assertThat(execute.getLocation(), is(new URI("http://absolute_destination")));
+    }
+
+    @Test
+    public void testGetOn302Redirect() throws Exception {
+        givenAnHttpServer()
+                .with_302_Found("/source", "/destination")
+                .run();
+
+        HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
+
+        assertThat(execute.getStatusCode(), is(HttpStatus.FOUND));
+        assertThat(execute.getLocation(), is(testUri("/destination")));
+    }
+
+    @Test
+    public void testGetOn303SeeOther() throws Exception {
+        givenAnHttpServer()
+                .with_303_SeeOther("/source", "/destination")
+                .run();
+
+        HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
+
+        assertThat(execute.getStatusCode(), is(HttpStatus.SEE_OTHER));
+        assertThat(execute.getLocation(), is(testUri("/destination")));
     }
 
 

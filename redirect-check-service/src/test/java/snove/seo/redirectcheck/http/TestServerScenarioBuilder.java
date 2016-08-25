@@ -1,7 +1,6 @@
 package snove.seo.redirectcheck.http;
 
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -30,8 +29,23 @@ public class TestServerScenarioBuilder {
         this.server = server;
     }
 
+    public TestServerScenarioBuilder with_200_Ok(String location) {
+        servedLocations.add(location);
+        return this;
+    }
+
     public TestServerScenarioBuilder with_301_MovedPermanently(String source, String destination) throws Exception {
-        redirectedLocations.put(source, new Redirect(301, destination));
+        setRedirect(301, source, destination);
+        return this;
+    }
+
+    public TestServerScenarioBuilder with_302_Found(String source, String destination) {
+        setRedirect(302, source, destination);
+        return this;
+    }
+
+    public TestServerScenarioBuilder with_303_SeeOther(String source, String destination) {
+        setRedirect(303, source, destination);
         return this;
     }
 
@@ -41,9 +55,8 @@ public class TestServerScenarioBuilder {
         logger.info("Test server listening on http://localhost:{}", ((ServerConnector) server.getConnectors()[0]).getLocalPort());
     }
 
-    public TestServerScenarioBuilder with_200_Ok(String location) {
-        servedLocations.add(location);
-        return this;
+    private void setRedirect(int httpStatus, String source, String destination) {
+        redirectedLocations.put(source, new Redirect(httpStatus, destination));
     }
 
     private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
@@ -55,6 +68,7 @@ public class TestServerScenarioBuilder {
     private void handleAsServed(String s, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_OK);
     }
+
 
     private static class Redirect {
         final String dstPath;
