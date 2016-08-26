@@ -17,7 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 
-@RunWith(MockitoJUnitRunner.class)
 public class HttpGetRequestTest {
 
     private Server server;
