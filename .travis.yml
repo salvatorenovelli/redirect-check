@@ -2,3 +2,5 @@ language: java
 sudo: false
 jdk: oraclejdk8
 script: mvn clean verify
+before_install:
+ - chmod +x mvnw
