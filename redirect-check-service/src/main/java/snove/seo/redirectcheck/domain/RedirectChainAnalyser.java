@@ -65,8 +65,8 @@ public class RedirectChainAnalyser {
 
 
         } catch (IOException | URISyntaxException e) {
-            logger.error("Error while analysing {}: {}", startURI, e.getMessage());
-            result.markAsInvalid(e.getMessage());
+            logger.error("Error while analysing {}: {}", startURI, e.toString());
+            result.markAsInvalid(e.toString());
         } catch (RedirectLoopException e) {
             result.markAsRedirectLoop();
         }
