@@ -12,6 +12,7 @@ import snove.seo.redirectcheck.model.RedirectChain;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.containsString;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -91,7 +92,7 @@ public class RedirectChainAnalyserTest {
 
         RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
         assertThat(redirectChain.isValid(), is(false));
-        assertThat(redirectChain.getStatus(), is(errorMessage));
+        assertThat(redirectChain.getStatus(), containsString(errorMessage));
     }
 
     private MockHttpRequestFactory givenAScenario() {
