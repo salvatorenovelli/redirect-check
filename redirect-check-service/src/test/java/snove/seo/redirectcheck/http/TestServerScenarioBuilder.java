@@ -60,9 +60,9 @@ public class TestServerScenarioBuilder {
     }
 
     private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
-        final Redirect redirect = redirectedLocations.get(s);
-        httpServletResponse.setHeader("Location", redirect.dstPath);
-        httpServletResponse.setStatus(redirect.httpStatusCode);
+        final Redirect destination = redirectedLocations.get(s);
+        httpServletResponse.setHeader("Location", destination.dstPath);
+        httpServletResponse.setStatus(destination.httpStatusCode);
     }
 
     private void handleAsServed(String s, HttpServletResponse response) {
