@@ -29,7 +29,6 @@ public class RedirectChainAnalyser {
     private static final Logger logger = LoggerFactory.getLogger(RedirectChainAnalyser.class);
     private final HttpRequestFactory requestFactory;
 
-    @Autowired
     public RedirectChainAnalyser(HttpRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
     }

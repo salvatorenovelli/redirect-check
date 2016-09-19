@@ -27,9 +27,7 @@ class RedirectSpecificationProcessor {
 
     @StreamListener(Processor.INPUT)
     public void handle(RedirectSpecification spec) {
-
         final RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
-
         System.out.println("Received spec: " + spec);
     }
 }
