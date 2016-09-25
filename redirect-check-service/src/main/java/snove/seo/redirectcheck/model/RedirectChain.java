@@ -14,7 +14,7 @@ public final class RedirectChain {
 
     public final static String REDIRECT_LOOP = "redirect loop";
 
-    private final List<HttpResponse> elements = new ArrayList<>();
+    private final List<RedirectChainElement> elements = new ArrayList<>();
     private boolean isValid = true;
     private String finalStatus = "ok";
 
@@ -22,7 +22,7 @@ public final class RedirectChain {
         return elements.size() > 0 ? elements.size() - 1 : 0;
     }
 
-    public boolean addElement(HttpResponse redirectChainElement) throws RedirectLoopException {
+    public boolean addElement(RedirectChainElement redirectChainElement) throws RedirectLoopException {
 
         if (redirectChainElement.getStatus() != HttpStatus.OK && alreadyExistInTheChain(redirectChainElement)) {
             throw new RedirectLoopException();
@@ -32,11 +32,11 @@ public final class RedirectChain {
     }
 
     public URI getDestinationURI() {
-        return getLastElement().getLocation();
+        return getLastElement().getDestinationURI();
     }
 
     public HttpStatus getLastStatus() {
-        return getLastElement().getStatusCode();
+        return getLastElement().getStatus();
     }
 
     public void markAsRedirectLoop() {
@@ -57,14 +57,14 @@ public final class RedirectChain {
         return finalStatus;
     }
 
-    private boolean alreadyExistInTheChain(HttpResponse redirectChainElement) {
+    private boolean alreadyExistInTheChain(RedirectChainElement redirectChainElement) {
         return elements.stream()
-                .map(HttpResponse::getLocation)
-                .filter(uri -> uri.equals(redirectChainElement.getLocation()))
+                .map(RedirectChainElement::getDestinationURI)
+                .filter(uri -> uri.equals(redirectChainElement.getDestinationURI()))
                 .count() > 0;
     }
 
-    private HttpResponse getLastElement() {
+    private RedirectChainElement getLastElement() {
         return elements.get(elements.size() - 1);
     }
 }
