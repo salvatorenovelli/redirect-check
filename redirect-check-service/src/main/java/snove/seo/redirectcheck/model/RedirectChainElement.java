@@ -11,11 +11,7 @@ public final class RedirectChainElement {
     private final URI destinationURI;
 
 
-    public RedirectChainElement(int httpStatus, URI destinationURI) {
-        this(HttpStatus.valueOf(httpStatus), destinationURI);
-    }
-
-    public RedirectChainElement(HttpStatus status, URI destinationURI) {
+     public RedirectChainElement(HttpStatus status, URI destinationURI) {
         this.status = status;
         this.destinationURI = destinationURI;
     }
