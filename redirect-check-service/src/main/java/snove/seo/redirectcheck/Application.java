@@ -10,8 +10,9 @@ import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.integration.annotation.Transformer;
 
 import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
-import snove.seo.redirectcheck.model.RedirectChain;
 import snove.seo.redirectcheck.model.RedirectAnalysisRequest;
+import snove.seo.redirectcheck.model.RedirectAnalysisResponse;
+import snove.seo.redirectcheck.model.RedirectChain;
 
 @SpringBootApplication
 public class Application {
@@ -30,12 +31,12 @@ class RedirectSpecificationProcessor {
 
 
     @Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-    public RedirectChain handle(RedirectAnalysisRequest spec) {
+    public RedirectAnalysisResponse handle(RedirectAnalysisRequest spec) {
 
         logger.info("Received spec {}", spec);
         final RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
         logger.info("Analysis of {} completed. Result: {}", spec, redirectChain);
 
-        return redirectChain;
+        return new RedirectAnalysisResponse(spec, redirectChain);
     }
 }
