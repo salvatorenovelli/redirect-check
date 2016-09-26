@@ -11,7 +11,7 @@ import org.springframework.integration.annotation.Transformer;
 
 import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
 import snove.seo.redirectcheck.model.RedirectChain;
-import snove.seo.redirectcheck.model.RedirectSpecification;
+import snove.seo.redirectcheck.model.RedirectAnalysisRequest;
 
 @SpringBootApplication
 public class Application {
@@ -30,7 +30,7 @@ class RedirectSpecificationProcessor {
 
 
     @Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-    public RedirectChain handle(RedirectSpecification spec) {
+    public RedirectChain handle(RedirectAnalysisRequest spec) {
 
         logger.info("Received spec {}", spec);
         final RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());

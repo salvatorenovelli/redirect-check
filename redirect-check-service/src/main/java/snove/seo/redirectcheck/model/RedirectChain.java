@@ -5,6 +5,7 @@ import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,6 +56,10 @@ public final class RedirectChain {
 
     public String getStatus() {
         return finalStatus;
+    }
+
+    List<RedirectChainElement> getElements() {
+        return Collections.unmodifiableList(elements);
     }
 
     private boolean alreadyExistInTheChain(RedirectChainElement redirectChainElement) {

@@ -8,16 +8,16 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public final class RedirectSpecification {
+public final class RedirectAnalysisRequest {
 
     private URI sourceURI;
     private URI expectedDestination;
 
-    public RedirectSpecification(String sourceURI, String expectedDestinationURI) throws URISyntaxException {
+    public RedirectAnalysisRequest(String sourceURI, String expectedDestinationURI) throws URISyntaxException {
         this(new URI(sourceURI.trim()), new URI(expectedDestinationURI.trim()));
     }
 
-    public RedirectSpecification(URI sourceURI, URI expectedDestination) {
+    public RedirectAnalysisRequest(URI sourceURI, URI expectedDestination) {
         this.sourceURI = sourceURI;
         this.expectedDestination = expectedDestination;
     }
