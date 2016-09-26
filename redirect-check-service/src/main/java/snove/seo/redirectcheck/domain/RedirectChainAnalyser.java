@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 
 import snove.seo.redirectcheck.model.HttpResponse;
 import snove.seo.redirectcheck.model.RedirectChain;
+import snove.seo.redirectcheck.model.RedirectChainElement;
 import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
 import static org.springframework.http.HttpStatus.FOUND;
@@ -55,7 +56,7 @@ public class RedirectChainAnalyser {
                         .execute();
 
                 HttpStatus status = curResponse.getStatusCode();
-                result.addElement(curResponse);
+                result.addElement(new RedirectChainElement(status, currentURI));
 
                 if (isRedirect(status)) {
                     currentURI = curResponse.getLocation();
