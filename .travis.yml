@@ -1,9 +1,6 @@
 language: java
-sudo: required
+sudo: false
 jdk: oraclejdk8
-before_script:
-  - sudo apt-get update
-  - sudo apt-get install -y lib32z1 lib32ncurses5
 script: mvn clean verify
 before_install:
  - chmod +x mvnw
