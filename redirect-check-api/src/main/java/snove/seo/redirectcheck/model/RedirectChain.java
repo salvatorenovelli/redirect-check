@@ -1,6 +1,6 @@
 package snove.seo.redirectcheck.model;
 
-import org.springframework.http.HttpStatus;
+import org.apache.http.HttpStatus;
 import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
 import java.net.URI;
@@ -25,7 +25,7 @@ public final class RedirectChain {
 
     public boolean addElement(RedirectChainElement redirectChainElement) throws RedirectLoopException {
 
-        if (redirectChainElement.getStatus() != HttpStatus.OK && alreadyExistInTheChain(redirectChainElement)) {
+        if (redirectChainElement.getHttpStatus() != HttpStatus.SC_OK && alreadyExistInTheChain(redirectChainElement)) {
             throw new RedirectLoopException();
         }
 
@@ -36,8 +36,8 @@ public final class RedirectChain {
         return getLastElement().getDestinationURI();
     }
 
-    public HttpStatus getLastStatus() {
-        return getLastElement().getStatus();
+    public int getLastHttpStatus() {
+        return getLastElement().getHttpStatus();
     }
 
     public void markAsRedirectLoop() {

@@ -1,23 +1,22 @@
 package snove.seo.redirectcheck.model;
 
-import org.springframework.http.HttpStatus;
+
 
 import java.net.URI;
-import java.net.URL;
 
 
 public final class RedirectChainElement {
-    private final HttpStatus status;
+    private final int httpStatus;
     private final URI destinationURI;
 
 
-     public RedirectChainElement(HttpStatus status, URI destinationURI) {
-        this.status = status;
+     public RedirectChainElement(int httpStatus, URI destinationURI) {
+        this.httpStatus = httpStatus;
         this.destinationURI = destinationURI;
     }
 
-    public HttpStatus getStatus() {
-        return status;
+    public int getHttpStatus() {
+        return httpStatus;
     }
 
     public URI getDestinationURI() {

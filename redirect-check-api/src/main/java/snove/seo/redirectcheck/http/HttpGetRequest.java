@@ -1,16 +1,13 @@
 package snove.seo.redirectcheck.http;
 
 
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import snove.seo.redirectcheck.domain.HttpRequest;
+import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import snove.seo.redirectcheck.domain.HttpRequest;
-import snove.seo.redirectcheck.model.HttpResponse;
 
 
 public class HttpGetRequest implements HttpRequest {
@@ -28,7 +25,7 @@ public class HttpGetRequest implements HttpRequest {
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
 
-        connection.setRequestMethod(HttpMethod.GET.name());
+        connection.setRequestMethod("GET");
         connection.setInstanceFollowRedirects(false);
         connection.connect();
 
@@ -50,7 +47,7 @@ public class HttpGetRequest implements HttpRequest {
         }
 
 
-        return new HttpResponse(HttpStatus.valueOf(connection.getResponseCode()), dstURI);
+        return new HttpResponse(connection.getResponseCode(), dstURI);
     }
 
     private String encodeURIComponent(String s) {

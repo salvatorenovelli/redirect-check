@@ -13,6 +13,7 @@
 
     <modules>
         <module>redirect-check-service</module>
+        <module>redirect-check-api</module>
     </modules>
 
 </project>

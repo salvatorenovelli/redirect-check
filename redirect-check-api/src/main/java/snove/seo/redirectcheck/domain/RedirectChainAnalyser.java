@@ -1,23 +1,19 @@
 package snove.seo.redirectcheck.domain;
 
 
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import snove.seo.redirectcheck.model.HttpResponse;
 import snove.seo.redirectcheck.model.RedirectChain;
 import snove.seo.redirectcheck.model.RedirectChainElement;
 import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
-import static org.springframework.http.HttpStatus.FOUND;
-import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
-import static org.springframework.http.HttpStatus.SEE_OTHER;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static org.apache.http.HttpStatus.SC_MOVED_PERMANENTLY;
 
 
 /**
@@ -55,10 +51,10 @@ public class RedirectChainAnalyser {
                         .createRequest(currentURI)
                         .execute();
 
-                HttpStatus status = curResponse.getStatusCode();
-                result.addElement(new RedirectChainElement(status, currentURI));
+                int httpStatus = curResponse.getStatusCode();
+                result.addElement(new RedirectChainElement(httpStatus, currentURI));
 
-                if (isRedirect(status)) {
+                if (isRedirect(httpStatus)) {
                     currentURI = curResponse.getLocation();
                 }
             }
@@ -77,7 +73,7 @@ public class RedirectChainAnalyser {
     }
 
 
-    private boolean isRedirect(HttpStatus status) {
-        return status == FOUND || status == MOVED_PERMANENTLY || status == SEE_OTHER;
+    private boolean isRedirect(int httpStatus) {
+        return httpStatus == HttpStatus.SC_MOVED_TEMPORARILY || httpStatus == SC_MOVED_PERMANENTLY || httpStatus == HttpStatus.SC_SEE_OTHER;
     }
 }

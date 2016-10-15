@@ -1,17 +1,14 @@
 package snove.seo.redirectcheck.http;
 
+import org.apache.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
+import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import snove.seo.redirectcheck.model.HttpResponse;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -34,7 +31,7 @@ public class HttpGetRequestTest {
 
         HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
 
-        assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
+        assertThat(execute.getStatusCode(), is(HttpStatus.SC_MOVED_PERMANENTLY));
         assertThat(execute.getLocation(), is(testUri("/relative_destination")));
     }
 
@@ -46,7 +43,7 @@ public class HttpGetRequestTest {
 
         HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
 
-        assertThat(execute.getStatusCode(), is(HttpStatus.MOVED_PERMANENTLY));
+        assertThat(execute.getStatusCode(), is(HttpStatus.SC_MOVED_PERMANENTLY));
         assertThat(execute.getLocation(), is(new URI("http://absolute_destination")));
     }
 
@@ -58,7 +55,7 @@ public class HttpGetRequestTest {
 
         HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
 
-        assertThat(execute.getStatusCode(), is(HttpStatus.FOUND));
+        assertThat(execute.getStatusCode(), is(HttpStatus.SC_MOVED_TEMPORARILY));
         assertThat(execute.getLocation(), is(testUri("/destination")));
     }
 
@@ -70,7 +67,7 @@ public class HttpGetRequestTest {
 
         HttpResponse execute = new HttpGetRequest(testUri("/source")).execute();
 
-        assertThat(execute.getStatusCode(), is(HttpStatus.SEE_OTHER));
+        assertThat(execute.getStatusCode(), is(HttpStatus.SC_SEE_OTHER));
         assertThat(execute.getLocation(), is(testUri("/destination")));
     }
 
@@ -84,7 +81,7 @@ public class HttpGetRequestTest {
 
         HttpResponse execute = new HttpGetRequest(testUri("/hello")).execute();
 
-        assertThat(execute.getStatus(), is(HttpStatus.OK));
+        assertThat(execute.getHttpStatus(), is(HttpStatus.SC_OK));
         assertThat(execute.getLocation(), is(testUri("/hello")));
     }
 

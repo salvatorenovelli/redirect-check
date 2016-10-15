@@ -1,7 +1,8 @@
 package snove.seo.redirectcheck.domain;
 
 
-import org.springframework.http.HttpStatus;
+
+import org.apache.http.HttpStatus;
 import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
@@ -18,13 +19,13 @@ class MockHttpRequestFactory implements HttpRequestFactory {
     private final Map<URI, IOException> exceptions = new HashMap<>();
 
 
-    public MockHttpRequestFactory withRedirect(String source, HttpStatus status, String dstLocation) throws URISyntaxException {
-        responses.put(new URI(source), new HttpResponse(status, new URI(dstLocation)));
+    public MockHttpRequestFactory withRedirect(String source, int httpStatus, String dstLocation) throws URISyntaxException {
+        responses.put(new URI(source), new HttpResponse(httpStatus, new URI(dstLocation)));
         return this;
     }
 
     public MockHttpRequestFactory withOk(String source) throws URISyntaxException {
-        responses.put(new URI(source), new HttpResponse(HttpStatus.OK, new URI(source)));
+        responses.put(new URI(source), new HttpResponse(HttpStatus.SC_OK, new URI(source)));
         return this;
     }
 

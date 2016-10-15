@@ -1,18 +1,17 @@
 package snove.seo.redirectcheck.model;
 
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 import java.net.URI;
 
 @Data
 public class HttpResponse {
 
-    private final HttpStatus status;
+    private final int httpStatus;
     private final URI location;
 
-    public HttpResponse(HttpStatus status, URI location) {
-        this.status = status;
+    public HttpResponse(int httpStatus, URI location) {
+        this.httpStatus = httpStatus;
         this.location = location;
     }
 
@@ -20,7 +19,7 @@ public class HttpResponse {
         return location;
     }
 
-    public HttpStatus getStatusCode() {
-        return status;
+    public int getStatusCode() {
+        return httpStatus;
     }
 }

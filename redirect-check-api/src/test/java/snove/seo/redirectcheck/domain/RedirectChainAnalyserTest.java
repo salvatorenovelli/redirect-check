@@ -3,7 +3,7 @@ package snove.seo.redirectcheck.domain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
+import org.apache.http.HttpStatus;
 
 import java.net.URI;
 
@@ -41,28 +41,28 @@ public class RedirectChainAnalyserTest {
 
         assertThat(redirectChain.getNumOfRedirect(), is(0));
         assertThat(redirectChain.getDestinationURI(), equalTo(new URI("http://www.example.com")));
-        assertThat(redirectChain.getLastStatus(), is(HttpStatus.OK));
+        assertThat(redirectChain.getLastHttpStatus(), is(HttpStatus.SC_OK));
     }
 
     @Test
     public void shouldFollowTheRedirectChain() throws Exception {
 
         givenAScenario()
-                .withRedirect("http://www.example.com", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/hello")
+                .withRedirect("http://www.example.com", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/hello")
                 .withOk("http://www.example.com/hello");
 
         RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
 
         assertThat(redirectChain.getNumOfRedirect(), is(1));
         assertThat(redirectChain.getDestinationURI(), equalTo(new URI("http://www.example.com/hello")));
-        assertThat(redirectChain.getLastStatus(), is(HttpStatus.OK));
+        assertThat(redirectChain.getLastHttpStatus(), is(HttpStatus.SC_OK));
     }
 
     @Test
     public void redirectLoopShouldMarkTheChainAsInvalid() throws Exception {
         givenAScenario()
-                .withRedirect("http://www.example.com/1", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/2")
-                .withRedirect("http://www.example.com/2", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/1");
+                .withRedirect("http://www.example.com/1", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/2")
+                .withRedirect("http://www.example.com/2", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/1");
 
         RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com/1"));
 
@@ -73,10 +73,10 @@ public class RedirectChainAnalyserTest {
     @Test
     public void shouldRecognizeComplexRedirectLoop() throws Exception {
         givenAScenario()
-                .withRedirect("http://www.example.com/1", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/2")
-                .withRedirect("http://www.example.com/2", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/3")
-                .withRedirect("http://www.example.com/3", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/4")
-                .withRedirect("http://www.example.com/4", HttpStatus.MOVED_PERMANENTLY, "http://www.example.com/2");
+                .withRedirect("http://www.example.com/1", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/2")
+                .withRedirect("http://www.example.com/2", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/3")
+                .withRedirect("http://www.example.com/3", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/4")
+                .withRedirect("http://www.example.com/4", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/2");
 
         RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com/1"));
 
