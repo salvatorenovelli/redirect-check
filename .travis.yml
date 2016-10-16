@@ -1,6 +1,10 @@
+sudo: required
 language: java
-sudo: false
-jdk: oraclejdk8
-script: mvn clean verify
-before_install:
- - chmod +x mvnw
+install: true # disable travis default mvn install
+jdk:
+  - oraclejdk8
+before_script:
+  - sudo apt-get update
+  - sudo apt-get install libc6:i386 libstdc++6:i386
+script:
+  - mvn clean install -X
