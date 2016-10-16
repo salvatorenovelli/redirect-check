@@ -1,6 +1,8 @@
 package com.snovelli.model;
 
-import com.snovelli.http.HttpRequest;
+
+
+import snove.seo.redirectcheck.domain.HttpRequest;
 
 import java.net.URI;
 

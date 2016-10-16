@@ -1,18 +1,19 @@
 package com.snovelli.http;
 
-import com.snovelli.model.HttpClientRequestFactory;
+
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.stereotype.Component;
-import sun.java2d.pipe.SpanShapeRenderer;
+import snove.seo.redirectcheck.domain.HttpRequest;
+import snove.seo.redirectcheck.domain.HttpRequestFactory;
 
 import java.net.URI;
 
 
 @Component
-public class DefaultHttpConnectorFactory implements HttpClientRequestFactory {
+public class DefaultHttpConnectorFactory implements HttpRequestFactory {
+
     @Override
-    public HttpRequest getConnector(URI httpURI) {
+    public HttpRequest createRequest(URI httpURI) {
         return new DefaultHttpRequest(httpURI, HttpMethod.GET);
     }
 }

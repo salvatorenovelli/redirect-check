@@ -1,14 +1,13 @@
 package com.snovelli;
 
 import com.snovelli.http.DefaultHttpConnectorFactory;
-import com.snovelli.model.RedirectChain;
 import com.snovelli.model.RedirectCheckResponse;
 import com.snovelli.model.RedirectSpecification;
-import com.snovelli.seo.redirect.RedirectChainAnalyser;
 import com.snovelli.seo.redirect.RedirectSpecificationCSVReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
+import snove.seo.redirectcheck.model.RedirectChain;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -113,7 +112,7 @@ public class Application {
                 cr.getStatusMessage(),
                 cr.getExpectedDestinationURI().toString(),
                 cr.getActualDestinationURI() != null ? cr.getActualDestinationURI().toString() : "n/a",
-                cr.getLastHttpStatus() != null ? cr.getLastHttpStatus().toString() : "n/a"
+                cr.getLastHttpStatus() != -1 ? "" + cr.getLastHttpStatus() : "n/a"
         );
 
         fields.forEach(this::appendToCSVOutput);

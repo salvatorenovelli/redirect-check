@@ -26,9 +26,9 @@ public class RedirectChainAnalyserTest {
     public void successfulRequestShouldBeNotMarkedAsInvalid() throws Exception {
         givenAScenario()
                 .withOk("http://www.example.com");
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com");
 
-        assertThat(redirectChain.isValid(), is(true));
+        assertThat(redirectChain.isFailed(), is(false));
     }
 
     @Test
@@ -37,10 +37,10 @@ public class RedirectChainAnalyserTest {
         givenAScenario()
                 .withOk("http://www.example.com");
 
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com");
 
         assertThat(redirectChain.getNumOfRedirect(), is(0));
-        assertThat(redirectChain.getDestinationURI(), equalTo(new URI("http://www.example.com")));
+        assertThat(redirectChain.getDestinationURI(), equalTo("http://www.example.com"));
         assertThat(redirectChain.getLastHttpStatus(), is(HttpStatus.SC_OK));
     }
 
@@ -51,10 +51,10 @@ public class RedirectChainAnalyserTest {
                 .withRedirect("http://www.example.com", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/hello")
                 .withOk("http://www.example.com/hello");
 
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com");
 
         assertThat(redirectChain.getNumOfRedirect(), is(1));
-        assertThat(redirectChain.getDestinationURI(), equalTo(new URI("http://www.example.com/hello")));
+        assertThat(redirectChain.getDestinationURI(), equalTo("http://www.example.com/hello"));
         assertThat(redirectChain.getLastHttpStatus(), is(HttpStatus.SC_OK));
     }
 
@@ -64,10 +64,10 @@ public class RedirectChainAnalyserTest {
                 .withRedirect("http://www.example.com/1", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/2")
                 .withRedirect("http://www.example.com/2", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/1");
 
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com/1"));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com/1");
 
-        assertThat(redirectChain.isValid(), is(false));
-        assertThat(redirectChain.getStatus(), is(RedirectChain.REDIRECT_LOOP));
+        assertThat(redirectChain.isFailed(), is(true));
+        assertThat(redirectChain.getStatus(), containsString(RedirectChain.REDIRECT_LOOP));
     }
 
     @Test
@@ -78,10 +78,10 @@ public class RedirectChainAnalyserTest {
                 .withRedirect("http://www.example.com/3", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/4")
                 .withRedirect("http://www.example.com/4", HttpStatus.SC_MOVED_PERMANENTLY, "http://www.example.com/2");
 
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com/1"));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com/1");
 
-        assertThat(redirectChain.isValid(), is(false));
-        assertThat(redirectChain.getStatus(), is(RedirectChain.REDIRECT_LOOP));
+        assertThat(redirectChain.isFailed(), is(true));
+        assertThat(redirectChain.getStatus(), containsString(RedirectChain.REDIRECT_LOOP));
     }
 
     @Test
@@ -90,8 +90,8 @@ public class RedirectChainAnalyserTest {
         givenAScenario()
                 .withIOException("http://www.example.com", errorMessage);
 
-        RedirectChain redirectChain = sut.analyseRedirectChain(new URI("http://www.example.com"));
-        assertThat(redirectChain.isValid(), is(false));
+        RedirectChain redirectChain = sut.analyseRedirectChain("http://www.example.com");
+        assertThat(redirectChain.isFailed(), is(true));
         assertThat(redirectChain.getStatus(), containsString(errorMessage));
     }
 

@@ -2,7 +2,8 @@ package com.snovelli.http;
 
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import snove.seo.redirectcheck.domain.HttpRequest;
+import snove.seo.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -49,7 +50,7 @@ public final class DefaultHttpRequest implements HttpRequest {
         }
 
 
-        return new HttpResponse(HttpStatus.valueOf(connection.getResponseCode()), dstURI);
+        return new HttpResponse(connection.getResponseCode(), dstURI);
     }
 
     private String encodeURIComponent(String s) {

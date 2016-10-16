@@ -1,8 +1,11 @@
 package com.snovelli.model;
 
 import org.springframework.http.HttpStatus;
+import snove.seo.redirectcheck.model.RedirectChain;
+import snove.seo.redirectcheck.model.RedirectChainElement;
 
-import java.net.URI;
+import org.springframework.http.HttpStatus;
+
 import java.util.List;
 
 public final class RedirectCheckResponse {
@@ -13,7 +16,7 @@ public final class RedirectCheckResponse {
     private final String sourceURI;
     private final String expectedDestinationURI;
     private String actualDestinationURI;
-    private HttpStatus lastHttpStatus;
+    private int lastHttpStatus = -1;
 
     private List<RedirectChainElement> redirectChain;
 
@@ -35,7 +38,7 @@ public final class RedirectCheckResponse {
 
 
         this.actualDestinationURI = redirectChain.getDestinationURI();
-        this.lastHttpStatus = redirectChain.getLastStatus();
+        this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
 
@@ -45,7 +48,7 @@ public final class RedirectCheckResponse {
             return;
         }
 
-        if (lastHttpStatus != HttpStatus.OK) {
+        if (lastHttpStatus != HttpStatus.OK.value()) {
             status = Status.FAILURE;
             statusMessage = "HTTP Status is not 200 (OK)";
             return;
@@ -67,8 +70,7 @@ public final class RedirectCheckResponse {
         return numberOfRedirects;
     }
 
-
-    public HttpStatus getLastHttpStatus() {
+    public int getLastHttpStatus() {
         return lastHttpStatus;
     }
 

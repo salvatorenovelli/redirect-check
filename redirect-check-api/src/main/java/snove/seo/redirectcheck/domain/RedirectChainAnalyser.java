@@ -36,21 +36,19 @@ public class RedirectChainAnalyser {
      * @return an object that describes the chain of redirect that the startURI lead to.
      *
      * */
-    public RedirectChain analyseRedirectChain(URI startURI) {
+    public RedirectChain analyseRedirectChain(String startURI) {
 
         RedirectChain result = new RedirectChain();
 
         try {
 
-            URI currentURI = startURI;
+            URI currentURI = getAbsoluteURI(startURI);
             HttpResponse curResponse = null;
 
             while (curResponse == null || isRedirect(curResponse.getStatusCode())) {
 
-                curResponse = requestFactory
-                        .createRequest(currentURI)
-                        .execute();
 
+                curResponse = requestFactory.createRequest(currentURI).execute();
                 int httpStatus = curResponse.getStatusCode();
                 result.addElement(new RedirectChainElement(httpStatus, currentURI));
 
@@ -62,7 +60,7 @@ public class RedirectChainAnalyser {
 
         } catch (IOException | IllegalArgumentException | URISyntaxException e) {
             logger.error("Error while analysing {}: {}", startURI, e.toString());
-            result.markAsInvalid(e.toString());
+            result.markAsFailed(e.toString());
         } catch (RedirectLoopException e) {
             result.markAsRedirectLoop();
         }
@@ -70,6 +68,15 @@ public class RedirectChainAnalyser {
         return result;
 
 
+    }
+
+    private URI getAbsoluteURI(String startURI) throws URISyntaxException {
+
+        if (!startURI.startsWith("http")) {
+            startURI = "http://" + startURI;
+        }
+
+        return new URI(startURI.trim());
     }
 
 

@@ -1,26 +1,29 @@
 package snove.seo.redirectcheck.model;
 
+
 import org.apache.http.HttpStatus;
 import snove.seo.redirectcheck.model.exception.RedirectLoopException;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-/**
- * Describes a chain of steps ({@link HttpResponse}s) that creates a path between a source link to a destination link.
- */
 public final class RedirectChain {
 
-    public final static String REDIRECT_LOOP = "redirect loop";
+    public static final String REDIRECT_LOOP = "Redirect loop";
+    private final List<RedirectChainElement> elements;
+    private boolean isFailed = false;
+    private String status = "";
 
-    private final List<RedirectChainElement> elements = new ArrayList<>();
-    private boolean isValid = true;
-    private String finalStatus = "ok";
+    public RedirectChain() {
+        elements = new ArrayList<>();
+    }
+
+    public List<RedirectChainElement> getElements() {
+        return new ArrayList<>(elements);
+    }
 
     public int getNumOfRedirect() {
-        return elements.size() > 0 ? elements.size() - 1 : 0;
+        return elements.size() - 1;
     }
 
     public boolean addElement(RedirectChainElement redirectChainElement) throws RedirectLoopException {
@@ -32,35 +35,31 @@ public final class RedirectChain {
         return elements.add(redirectChainElement);
     }
 
-    public URI getDestinationURI() {
-        return getLastElement().getDestinationURI();
+    public void markAsRedirectLoop() {
+        markAsFailed(REDIRECT_LOOP);
+    }
+
+    public void markAsFailed(String reason) {
+        this.status = "Failed: " + reason;
+        this.isFailed = true;
+    }
+
+    public String getDestinationURI() {
+        return getLastElement().getDestinationURI().toASCIIString();
     }
 
     public int getLastHttpStatus() {
         return getLastElement().getHttpStatus();
     }
 
-    public void markAsRedirectLoop() {
-        this.isValid = false;
-        this.finalStatus = REDIRECT_LOOP;
-    }
-
-    public void markAsInvalid(String message) {
-        this.isValid = false;
-        this.finalStatus = message;
-    }
-
-    public boolean isValid() {
-        return isValid;
+    public boolean isFailed() {
+        return isFailed;
     }
 
     public String getStatus() {
-        return finalStatus;
+        return status;
     }
 
-    List<RedirectChainElement> getElements() {
-        return Collections.unmodifiableList(elements);
-    }
 
     private boolean alreadyExistInTheChain(RedirectChainElement redirectChainElement) {
         return elements.stream()
