@@ -6,7 +6,7 @@
 
     <!--Not an actual parent pom, just for IDE convenience-->
 
-    <groupId>snovelli</groupId>
+    <groupId>snove.seo</groupId>
     <artifactId>redirect-check</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -14,6 +14,7 @@
     <modules>
         <module>redirect-check-service</module>
         <module>redirect-check-api</module>
+        <module>redirect-check-cl</module>
     </modules>
 
 </project>
