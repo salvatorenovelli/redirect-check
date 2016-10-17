@@ -10,6 +10,7 @@ script:
   - mvn clean install
 
 before_deploy:
+  - pwd
   - export ARTIFACT_NAME=$(ls target\*.jar)
   - echo "Deploying $ARTIFACT_NAME to GitHub releases"
 
