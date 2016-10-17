@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -24,6 +23,7 @@ public class RedirectSpecificationCSVReader {
 
     private static final RedirectSpecification INVALID_URI_SPEC = null;
     private static Logger logger = LoggerFactory.getLogger(RedirectSpecificationCSVReader.class);
+    private static int currentLine = 0;
 
     public static List<RedirectSpecification> parse(Path csvFile) throws IOException {
 
@@ -49,12 +49,15 @@ public class RedirectSpecificationCSVReader {
     }
 
     private static Function<String[], RedirectSpecification> toRedirectSpecification() {
+
+
         return strings -> {
+            currentLine++;
             if (strings.length > 1) {
                 return new RedirectSpecification(strings[0], strings[1]);
             } else {
                 if (strings.length > 0) {
-                    logger.warn("Missing parameter in: " + Arrays.toString(strings));
+                    logger.warn("Missing expected url in line: {} ", currentLine);
                 }
             }
             return INVALID_URI_SPEC;
