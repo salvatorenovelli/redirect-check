@@ -138,9 +138,12 @@ public class Application {
 
 
     private RedirectCheckResponse checkRedirect(RedirectSpecification spec) {
-        logger.debug("Analysing " + spec);
-        RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
-        progressMonitor.tick();
-        return new RedirectCheckResponse(spec, redirectChain);
+        try {
+            logger.debug("Analysing " + spec);
+            RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
+            return new RedirectCheckResponse(spec, redirectChain);
+        } finally {
+            progressMonitor.tick();
+        }
     }
 }
