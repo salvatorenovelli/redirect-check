@@ -4,10 +4,9 @@ import com.snovelli.http.DefaultHttpConnectorFactory;
 import com.snovelli.model.RedirectCheckResponse;
 import com.snovelli.model.RedirectSpecification;
 import com.snovelli.seo.redirect.RedirectSpecificationCSVReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
-import snove.seo.redirectcheck.model.RedirectChain;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import snove.seo.redirectcheck.domain.RedirectChainAnalyser;
+import snove.seo.redirectcheck.model.RedirectChain;
+
 
 public class Application {
 
@@ -25,6 +27,7 @@ public class Application {
     private final RedirectChainAnalyser analyser;
     private final String filename;
     private final FileWriter csvOutput;
+    private ProgressMonitor progressMonitor;
 
 
     private Application(String sourceFilename) throws IOException {
@@ -97,6 +100,8 @@ public class Application {
 
     private List<RedirectCheckResponse> analyseRedirectsInCSV(String filePath) throws IOException {
         List<RedirectSpecification> specs = RedirectSpecificationCSVReader.parse(Paths.get(filePath));
+        progressMonitor = new ProgressMonitor(specs.size());
+        progressMonitor.startPrinting();
         return specs.parallelStream().map(this::checkRedirect).collect(Collectors.toList());
     }
 
@@ -135,6 +140,7 @@ public class Application {
     private RedirectCheckResponse checkRedirect(RedirectSpecification spec) {
         logger.debug("Analysing " + spec);
         RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
+        progressMonitor.tick();
         return new RedirectCheckResponse(spec, redirectChain);
     }
 }
