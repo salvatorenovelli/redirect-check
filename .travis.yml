@@ -7,11 +7,11 @@ before_script:
   - sudo apt-get update
   - sudo apt-get install libc6:i386 libstdc++6:i386
 script:
-  - mvn clean install -X
+  - mvn clean install
 
 before_deploy:
   - export ARTIFACT_NAME=$(ls target\*.jar)
-  - echo "Deploying ARTIFACT_NAME to GitHub releases"
+  - echo "Deploying $ARTIFACT_NAME to GitHub releases"
 
 deploy:
   provider: releases
