@@ -6,7 +6,7 @@
 
     <groupId>snove.seo</groupId>
     <artifactId>redirect-check-cl</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.3</version>
     <packaging>jar</packaging>
 
     <name>redirect-check-cl</name>
