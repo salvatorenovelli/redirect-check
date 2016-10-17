@@ -8,3 +8,16 @@ before_script:
   - sudo apt-get install libc6:i386 libstdc++6:i386
 script:
   - mvn clean install -X
+
+before_deploy:
+  - export ARTIFACT_NAME=$(ls target\*.jar)
+  - echo "Deploying ARTIFACT_NAME to GitHub releases"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: qVK64jgUR7A9M8lV3/JyS+Caww3IDJD33b6w2RprKg/F16B7U/oGcelqCvqhJrnvFpNdRjTOMXv+0mZTLRWJ1Tdfwhc0yshKc7+6wAY+7zHS4RQo6k0LXbedlolLuxMAzREcFTZkxKG/5D/fPTHQv28siX7dAonzlK11yv1LTsi17Zcj3PrJQAfEtE2wz6cCeP24sKN4wjmtegeZgUP5BPKQ44CxzIU/yZIpysKhd1mvdUhaM2E1L0uqSnzHUg38pgVNYiIs3/mOZQ6rLo0n4Z5flV4FUxOTmIkQlyXm8I0yD/5N1dR9lPnByuRM44L+HE1emyoAhi1Z4YgwZswi8OrQFeREa5rRheMjoChiAoavaFT2gZL596EgDBtAImBCIfDxLoRp8aoM/wkboojUVBw3IXZEBVmlRIIi5PtVyGJ+Na/NGdH6l4xtgdpRAw5k7Im9qwEwuux1ZtpnDO0trH86ChPanRIcakTzoIjghxUP5ln/2qObqWvTuFiR3vdE0U/v1jlTa2L7HQKlk3eDcoElb8B6QPpVgyn4Su8pR7cwsUS16aNxmWVfk4RMOnqn6nrDA/IWSlxazgF1P7krHR/YRXv8+G03F+2rwBJAGpQ7wxyK19TrgjmsVwyGo3s5pznb3+olDbTreSQT/RgI0pid/uIGXok16yTwj3L5BQM=
+  file_glob: true
+  file: "${RELEASE_PKG_FILE}"
+  on:
+    repo: salvatorenovelli/redirect-check
