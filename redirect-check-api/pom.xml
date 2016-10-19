@@ -7,7 +7,7 @@
 
     <groupId>snove.seo</groupId>
     <artifactId>redirect-check-api</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
 
 
     <properties>
