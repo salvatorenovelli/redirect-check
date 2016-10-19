@@ -22,4 +22,5 @@ deploy:
   file: ${ARTIFACT_NAME}
   skip_cleanup: true
   on:
+    tags: true
     repo: salvatorenovelli/redirect-check
