@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/salvatorenovelli/redirect-check.svg?branch=master)](https://travis-ci.org/salvatorenovelli/redirect-check)
 # redirect-check
 
-Having fun with [Spring Cloud Stream][1] solving some real problem.
+Having fun with [Spring Cloud Stream][1] solving some real problem. 
 
 The basic idea of this project is to have an horizontally scalable system to analyze huge list of redirects, periodically.
 
