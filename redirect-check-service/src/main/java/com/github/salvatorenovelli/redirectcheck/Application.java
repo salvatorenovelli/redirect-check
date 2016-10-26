@@ -22,22 +22,3 @@ public class Application {
     }
 }
 
-@EnableBinding(Processor.class)
-class RedirectSpecificationProcessor {
-
-    private static final Logger logger = LoggerFactory.getLogger(RedirectSpecificationProcessor.class);
-
-    @Autowired
-    RedirectChainAnalyser analyser;
-
-
-    @Transformer(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-    public RedirectAnalysisResponse handle(RedirectAnalysisRequest spec) {
-
-        logger.info("Received spec {}", spec);
-        final RedirectChain redirectChain = analyser.analyseRedirectChain(spec.getSourceURI());
-        logger.info("Analysis of {} completed. Result: {}", spec, redirectChain);
-
-        return new RedirectAnalysisResponse(spec, redirectChain);
-    }
-}
