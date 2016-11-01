@@ -1,5 +1,6 @@
 package com.github.salvatorenovelli.redirectcheck;
 
+import com.github.salvatorenovelli.redirectcheck.domain.DefaultRedirectChainAnalyser;
 import com.github.salvatorenovelli.redirectcheck.domain.RedirectChainAnalyser;
 
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,6 @@ public class ApplicationConfiguration {
 
     @Bean
     RedirectChainAnalyser getRedirectChainAnalyser(){
-        return new RedirectChainAnalyser(new DefaultHttpRequestFactory());
+        return new DefaultRedirectChainAnalyser(new DefaultHttpRequestFactory());
     }
 }

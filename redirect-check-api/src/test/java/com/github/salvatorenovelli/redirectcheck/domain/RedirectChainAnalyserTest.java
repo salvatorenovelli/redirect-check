@@ -18,7 +18,7 @@ public class RedirectChainAnalyserTest {
 
     MockHttpRequestFactory mockHttpRequestFactory = new MockHttpRequestFactory();
 
-    RedirectChainAnalyser sut = new RedirectChainAnalyser(mockHttpRequestFactory);
+    RedirectChainAnalyser sut = new DefaultRedirectChainAnalyser(mockHttpRequestFactory);
 
     @Test
     public void successfulRequestShouldBeNotMarkedAsInvalid() throws Exception {
