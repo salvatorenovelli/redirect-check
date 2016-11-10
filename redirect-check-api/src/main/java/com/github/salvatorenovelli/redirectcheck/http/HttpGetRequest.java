@@ -5,9 +5,11 @@ import com.github.salvatorenovelli.redirectcheck.domain.HttpRequest;
 import com.github.salvatorenovelli.redirectcheck.model.HttpResponse;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 
 public class HttpGetRequest implements HttpRequest {
@@ -36,7 +38,14 @@ public class HttpGetRequest implements HttpRequest {
             if (status == HttpURLConnection.HTTP_MOVED_TEMP
                     || status == HttpURLConnection.HTTP_MOVED_PERM
                     || status == HttpURLConnection.HTTP_SEE_OTHER) {
-                URI location = new URI(encodeURIComponent(connection.getHeaderField("location")));
+
+                Optional<String> contentType = extractCharacterEncodingIfPresent(connection);
+
+                URI location = contentType
+                        .map(s -> tryDecode(connection.getHeaderField("location").getBytes(), s))
+                        .orElse(Optional.of(new URI(connection.getHeaderField("location"))))
+                        .get();
+
 
                 if (location.isAbsolute()) {
                     dstURI = location;
@@ -48,6 +57,22 @@ public class HttpGetRequest implements HttpRequest {
 
 
         return new HttpResponse(connection.getResponseCode(), dstURI);
+    }
+
+    private Optional<URI> tryDecode(byte[] urlBytes, String characterEncoding) {
+        try {
+            return Optional.of(new URI(new String(urlBytes, characterEncoding)));
+        } catch (URISyntaxException | UnsupportedEncodingException e) {
+            return Optional.<URI>empty();
+        }
+    }
+
+    private Optional<String> extractCharacterEncodingIfPresent(HttpURLConnection connection) {
+
+        if(connection.getContentType()!=null){
+            return Optional.of(connection.getContentType().split("=")[1]);
+        }
+        return Optional.empty();
     }
 
     private String encodeURIComponent(String s) {
