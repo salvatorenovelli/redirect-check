@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,12 +58,17 @@ class TestServerScenarioBuilder {
     }
 
     private void setRedirect(int httpStatus, String source, String destination) {
-        redirectedLocations.put(source, new Redirect(httpStatus, destination));
+        try {
+            redirectedLocations.put(new String(source.getBytes(Charset.defaultCharset().name()), "UTF-8"), new Redirect(httpStatus, destination));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
         final Redirect destination = redirectedLocations.get(s);
         httpServletResponse.setHeader("Location", destination.dstPath);
+        httpServletResponse.setContentType("text/html; charset=UTF-8");
         httpServletResponse.setStatus(destination.httpStatusCode);
     }
 
@@ -88,13 +95,13 @@ class TestServerScenarioBuilder {
      */
     private class NonSmartHandler extends AbstractHandler {
         @Override
-        public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+        public void handle(String s, Request request,
+                           HttpServletRequest httpServletRequest,
+                           HttpServletResponse httpServletResponse) throws IOException, ServletException {
             if (redirectedLocations.containsKey(s)) {
                 handleAsRedirect(s, httpServletResponse);
                 request.setHandled(true);
-            }
-
-            if (servedLocations.contains(s)) {
+            } else if (servedLocations.contains(s)) {
                 handleAsServed(s, httpServletResponse);
                 request.setHandled(true);
             }

@@ -1,11 +1,12 @@
 package com.github.salvatorenovelli.redirectcheck.http;
 
+import com.github.salvatorenovelli.redirectcheck.model.HttpResponse;
+
 import org.apache.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.After;
 import org.junit.Test;
-import com.github.salvatorenovelli.redirectcheck.model.HttpResponse;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,6 +22,40 @@ public class HttpGetRequestTest {
     @After
     public void tearDown() throws Exception {
         server.stop();
+    }
+
+
+    /**
+     *
+     * Some stupid website, put unicode characters in their target location (without escaping them).
+     *
+     * The response bytes containing the unicode characters will "decoded" into string with the default charset, and returned as a
+     * header parameter. The problem is that the web server might have encoded them in a different charset than ours,
+     * therefore we had to read the charset from the header and transcode the our string in the intendend charset.
+     *
+     *
+     * This test demonstrate the functionality works.
+     *
+     * PS: I used two passes as it made the test easier as we didn't have to assert against a unicode target URL.
+     *
+     */
+    @Test
+    public void weShouldHandleUnicodeCharacters() throws Exception {
+
+        // Stands for UTF-8 "/família"
+        String locationWithUnicodeCharacters = new String(new byte[]{0x2f, 0x66, 0x61, 0x6d, -61, -83, 0x6c, 0x69, 0x61});
+
+        givenAnHttpServer()
+                .with_301_MovedPermanently("/source", locationWithUnicodeCharacters)
+                .with_301_MovedPermanently(locationWithUnicodeCharacters, "/destination")
+                .run();
+
+        HttpResponse firstPass = new HttpGetRequest(testUri("/source")).execute();
+        HttpResponse secondPass = new HttpGetRequest(firstPass.getLocation()).execute();
+
+        assertThat(secondPass.getStatusCode(), is(HttpStatus.SC_MOVED_PERMANENTLY));
+        assertThat(secondPass.getLocation(), is(testUri("/destination")));
+
     }
 
     @Test
