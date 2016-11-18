@@ -6,12 +6,12 @@ import com.github.salvatorenovelli.redirectcheck.model.HttpResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 
 
 public class HttpGetRequest implements HttpRequest {
@@ -45,36 +45,34 @@ public class HttpGetRequest implements HttpRequest {
         return new HttpResponse(connection.getResponseCode(), dstURI);
     }
 
-    private URI extractDestinationUri(HttpURLConnection connection, URI initialLocation) throws URISyntaxException {
-        final String locationHeaderField = connection.getHeaderField("location");
-        final String encoding = extractCharacterEncoding(connection);
+    private URI extractDestinationUri(HttpURLConnection connection, URI initialLocation) throws URISyntaxException, UnsupportedEncodingException {
+        String locationHeaderField = connection.getHeaderField("location");
+        URI location = new URI(locationHeaderField);
 
-        URI location = decode(locationHeaderField, encoding);
+        if (containsUnicodeCharacters(locationHeaderField)) {
+            logger.warn("Header field 'location' contains unicode characters, trying to decode them. ({})", locationHeaderField);
+            location = escapeUnicodeCharacters(locationHeaderField, extractCharacterEncoding(connection));
+        }
 
         if (location.isAbsolute()) {
-            return location;
+            return new URI(locationHeaderField);
         } else {
             return initialLocation.resolve(location);
         }
-
     }
 
-    private URI decode(String locationHeaderField, String characterEncoding) throws URISyntaxException {
-        URI locationsByte = tryDecode(locationHeaderField, characterEncoding);
-        if (locationsByte != null) return locationsByte;
-        return new URI(locationHeaderField);
-    }
-
-    private URI tryDecode(String locationHeaderField, String characterEncoding) throws URISyntaxException {
-        try {
-            if (characterEncoding != null) {
-                byte[] locationsByte = locationHeaderField.getBytes(Charset.defaultCharset().name());
-                return new URI(new URI(new String(locationsByte, characterEncoding)).toASCIIString());
-            }
-        } catch (UnsupportedEncodingException e) {
-            logger.info("Decoding of {} failed, using default charset. Error: {}", locationHeaderField, e.getMessage());
+    private boolean containsUnicodeCharacters(String locationHeaderField) {
+        for (int i = 0; i < locationHeaderField.length(); i++) {
+            if (locationHeaderField.charAt(i) >= 128) return true;
         }
-        return null;
+        return false;
+    }
+
+    private URI escapeUnicodeCharacters(String locationHeaderField, String encoding) throws UnsupportedEncodingException, URISyntaxException {
+        final String locationWithOriginalEncoding = new String(locationHeaderField.getBytes(), encoding != null ? encoding : "UTF-8");
+
+
+        return new URI(new URI(locationWithOriginalEncoding).toASCIIString());
     }
 
     private String extractCharacterEncoding(HttpURLConnection connection) {
