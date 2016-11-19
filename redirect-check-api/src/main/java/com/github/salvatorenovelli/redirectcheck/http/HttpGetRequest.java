@@ -55,7 +55,7 @@ public class HttpGetRequest implements HttpRequest {
         }
 
         if (location.isAbsolute()) {
-            return new URI(locationHeaderField);
+            return location;
         } else {
             return initialLocation.resolve(location);
         }
@@ -70,8 +70,6 @@ public class HttpGetRequest implements HttpRequest {
 
     private URI escapeUnicodeCharacters(String locationHeaderField, String encoding) throws UnsupportedEncodingException, URISyntaxException {
         final String locationWithOriginalEncoding = new String(locationHeaderField.getBytes(), encoding != null ? encoding : "UTF-8");
-
-
         return new URI(new URI(locationWithOriginalEncoding).toASCIIString());
     }
 
