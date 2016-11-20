@@ -18,6 +18,8 @@ import static org.hamcrest.core.Is.is;
 public class HttpGetRequestTest {
 
     private Server server;
+    // Stands for UTF-8 "/família"
+    public static final String LOCATION_WITH_UNICODE_CHARACTERS = new String(new byte[]{0x2f, 0x66, 0x61, 0x6d, -61, -83, 0x6c, 0x69, 0x61});
 
     @After
     public void tearDown() throws Exception {
@@ -42,12 +44,9 @@ public class HttpGetRequestTest {
     @Test
     public void weShouldHandleUnicodeCharacters() throws Exception {
 
-        // Stands for UTF-8 "/família"
-        String locationWithUnicodeCharacters = new String(new byte[]{0x2f, 0x66, 0x61, 0x6d, -61, -83, 0x6c, 0x69, 0x61});
-
-        givenAnHttpServer()
-                .with_301_MovedPermanently("/source", locationWithUnicodeCharacters)
-                .with_301_MovedPermanently(locationWithUnicodeCharacters, "/destination")
+       givenAnHttpServer()
+                .with_301_MovedPermanently("/source", LOCATION_WITH_UNICODE_CHARACTERS)
+                .with_301_MovedPermanently(LOCATION_WITH_UNICODE_CHARACTERS, "/destination")
                 .run();
 
         HttpResponse firstPass = new HttpGetRequest(testUri("/source")).execute();
@@ -55,6 +54,17 @@ public class HttpGetRequestTest {
 
         assertThat(secondPass.getStatusCode(), is(HttpStatus.SC_MOVED_PERMANENTLY));
         assertThat(secondPass.getLocation(), is(testUri("/destination")));
+
+    }
+
+    @Test
+    public void unicodeRedirectGetUrlEncoded() throws Exception {
+        givenAnHttpServer()
+                .with_301_MovedPermanently("/source", LOCATION_WITH_UNICODE_CHARACTERS)
+                .run();
+
+        HttpResponse request = new HttpGetRequest(testUri("/source")).execute();
+        assertThat(request.getLocation(), is(testUri("/fam%C3%ADlia")));
 
     }
 
