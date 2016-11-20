@@ -7,6 +7,9 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -15,16 +18,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 class TestServerScenarioBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(TestServerScenarioBuilder.class);
     private final Server server;
     private final Map<String, Redirect> redirectedLocations = new TreeMap<>();
     private final Set<String> servedLocations = new HashSet<>();
+    private boolean charsetFieldPresent = true;
 
 
     public TestServerScenarioBuilder(Server server) {
@@ -51,6 +51,11 @@ class TestServerScenarioBuilder {
         return this;
     }
 
+    public TestServerScenarioBuilder disableCharsetHeader() {
+        charsetFieldPresent = false;
+        return this;
+    }
+
     public void run() throws Exception {
         server.setHandler(new NonSmartHandler());
         server.start();
@@ -68,7 +73,7 @@ class TestServerScenarioBuilder {
     private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
         final Redirect destination = redirectedLocations.get(s);
         httpServletResponse.setHeader("Location", destination.dstPath);
-        httpServletResponse.setContentType("text/html; charset=UTF-8");
+        httpServletResponse.setContentType("text/html;" + (charsetFieldPresent ? "charset=UTF-8" : ""));
         httpServletResponse.setStatus(destination.httpStatusCode);
     }
 

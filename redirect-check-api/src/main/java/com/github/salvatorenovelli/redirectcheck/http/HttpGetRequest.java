@@ -3,7 +3,6 @@ package com.github.salvatorenovelli.redirectcheck.http;
 
 import com.github.salvatorenovelli.redirectcheck.domain.HttpRequest;
 import com.github.salvatorenovelli.redirectcheck.model.HttpResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,10 @@ public class HttpGetRequest implements HttpRequest {
 
     private String extractCharacterEncoding(HttpURLConnection connection) {
         if (connection.getContentType() != null) {
-            return connection.getContentType().split("=")[1];
+            String[] tokens = connection.getContentType().split("=");
+            if (tokens.length > 1) {
+                return tokens[1];
+            }
         }
         return null;
     }

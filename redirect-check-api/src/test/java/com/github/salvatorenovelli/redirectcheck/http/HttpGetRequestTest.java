@@ -76,7 +76,6 @@ public class HttpGetRequestTest {
 
     @Test
     public void getOn200() throws Exception {
-
         givenAnHttpServer()
                 .with_200_Ok("/hello")
                 .run();
@@ -103,7 +102,6 @@ public class HttpGetRequestTest {
      */
     @Test
     public void weShouldHandleUnicodeCharacters() throws Exception {
-
         givenAnHttpServer()
                 .with_301_MovedPermanently("/source", LOCATION_WITH_UNICODE_CHARACTERS)
                 .with_301_MovedPermanently(LOCATION_WITH_UNICODE_CHARACTERS, "/destination")
@@ -114,13 +112,24 @@ public class HttpGetRequestTest {
 
         assertThat(secondPass.getStatusCode(), is(HttpStatus.SC_MOVED_PERMANENTLY));
         assertThat(secondPass.getLocation(), is(testUri("/destination")));
-
     }
 
     @Test
     public void unicodeRedirectGetUrlEncoded() throws Exception {
         givenAnHttpServer()
                 .with_301_MovedPermanently("/source", LOCATION_WITH_UNICODE_CHARACTERS)
+                .run();
+
+        HttpResponse request = new HttpGetRequest(testUri("/source")).execute();
+        assertThat(request.getLocation(), is(testUri("/fam%C3%ADlia")));
+
+    }
+
+    @Test
+    public void unicodeCharactersInLocationHeaderGetDecodedEvenWhenCharsetIsNotSpecified() throws Exception {
+        givenAnHttpServer()
+                .with_301_MovedPermanently("/source", LOCATION_WITH_UNICODE_CHARACTERS)
+                .disableCharsetHeader()
                 .run();
 
         HttpResponse request = new HttpGetRequest(testUri("/source")).execute();
