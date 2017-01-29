@@ -93,7 +93,7 @@ public class HttpGetRequestTest {
      * therefore we had to read the charset from the header and transcode the string into the intended charset.
      * <p>
      * <p>
-     * PS: I used two redirects as it made the test easier as we didn't have to assert against a unicode target URL.
+     * PS: I used two redirects (firstPass, secondPass) as it made the test easier as we didn't have to assert against a unicode target URL.
      */
     @Test
     public void weShouldHandleUnicodeCharacters() throws Exception {
