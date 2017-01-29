@@ -88,7 +88,7 @@ public class HttpGetRequestTest {
 
     /**
      *
-     * Some stupid website, put unicode characters in their target location (without escaping them).
+     * Some website, put unicode characters in their target location (without escaping them).
      *
      * The response bytes containing the unicode characters will "decoded" into string with the default charset, and returned as a
      * header parameter. The problem is that the web server might have encoded them in a different charset than ours,
