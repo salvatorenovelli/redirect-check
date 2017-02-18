@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 
 public class HttpGetRequest implements HttpRequest {
@@ -27,7 +28,7 @@ public class HttpGetRequest implements HttpRequest {
     @Override
     public HttpResponse execute() throws IOException, URISyntaxException {
 
-        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(uri.toASCIIString()).openConnection();
 
         connection.setRequestMethod("GET");
         connection.setInstanceFollowRedirects(false);
