@@ -11,8 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -63,11 +61,7 @@ class TestServerScenarioBuilder {
     }
 
     private void setRedirect(int httpStatus, String source, String destination) {
-        try {
-            redirectedLocations.put(new String(source.getBytes(Charset.defaultCharset().name()), "UTF-8"), new Redirect(httpStatus, destination));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        redirectedLocations.put(SafeStringEncoder.encodeString(source), new Redirect(httpStatus, destination));
     }
 
     private void handleAsRedirect(String s, HttpServletResponse httpServletResponse) throws IOException {
@@ -103,11 +97,13 @@ class TestServerScenarioBuilder {
         public void handle(String s, Request request,
                            HttpServletRequest httpServletRequest,
                            HttpServletResponse httpServletResponse) throws IOException, ServletException {
-            if (redirectedLocations.containsKey(s)) {
-                handleAsRedirect(s, httpServletResponse);
+
+            String path = request.getHttpURI().getPath();
+            if (redirectedLocations.containsKey(path)) {
+                handleAsRedirect(path, httpServletResponse);
                 request.setHandled(true);
             } else if (servedLocations.contains(s)) {
-                handleAsServed(s, httpServletResponse);
+                handleAsServed(path, httpServletResponse);
                 request.setHandled(true);
             }
         }

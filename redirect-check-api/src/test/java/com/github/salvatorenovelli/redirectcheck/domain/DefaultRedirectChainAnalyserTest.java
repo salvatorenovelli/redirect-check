@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.containsString;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class RedirectChainAnalyserTest {
+public class DefaultRedirectChainAnalyserTest {
 
     MockHttpRequestFactory mockHttpRequestFactory = new MockHttpRequestFactory();
 
