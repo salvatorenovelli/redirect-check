@@ -16,6 +16,7 @@ public class HttpResponse {
     }
 
     public URI getLocation() {
+
         return location;
     }
 

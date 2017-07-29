@@ -15,6 +15,7 @@ public final class RedirectChainElement {
         this.destinationURI = destinationURI;
     }
 
+
     public int getHttpStatus() {
         return httpStatus;
     }

@@ -12,9 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>redirect-check-service</module>
         <module>redirect-check-api</module>
-        <module>redirect-check-api-reactive</module>
     </modules>
 
 </project>

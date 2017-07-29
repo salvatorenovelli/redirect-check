@@ -15,6 +15,7 @@ public final class RedirectChain {
     private boolean isFailed = false;
     private String status = "";
 
+
     public RedirectChain() {
         elements = new ArrayList<>();
     }
