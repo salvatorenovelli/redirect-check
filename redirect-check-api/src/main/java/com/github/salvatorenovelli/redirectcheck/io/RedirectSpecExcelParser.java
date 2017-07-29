@@ -24,8 +24,12 @@ public class RedirectSpecExcelParser implements RedirectSpecificationParser {
     private final Workbook wb;
     private final Sheet sheet;
 
-    public RedirectSpecExcelParser(String filename) throws IOException, InvalidFormatException {
-        this.wb = WorkbookFactory.create(new FileInputStream(filename));
+    public RedirectSpecExcelParser(String filename) throws IOException {
+        try {
+            this.wb = WorkbookFactory.create(new FileInputStream(filename));
+        } catch (InvalidFormatException e) {
+            throw new IllegalStateException(e);
+        }
         this.sheet = getFirstVisibleSheet();
     }
 
