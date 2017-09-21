@@ -2,6 +2,7 @@ package com.github.salvatorenovelli.redirectcheck.model;
 
 import lombok.EqualsAndHashCode;
 
+import java.net.URISyntaxException;
 import java.util.List;
 
 @EqualsAndHashCode
@@ -50,7 +51,14 @@ public class RedirectCheckResponse {
         this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
-        if (!EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI)) {
+        boolean compare = false;
+        try {
+            compare = EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI);
+        } catch (URISyntaxException e) {
+            //Will be failing on the next lines
+        }
+
+        if (!compare) {
             status = Status.FAILURE;
             statusMessage = DESTINATION_MISMATCH;
             return;
