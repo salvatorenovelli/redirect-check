@@ -1,9 +1,9 @@
 package com.github.salvatorenovelli.redirectcheck.model;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -84,6 +84,17 @@ public class RedirectCheckResponseTest {
     }
 
     @Test
+    public void shouldMarkCleanIfNoRedirect() throws Exception {
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination1")));
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination1", 200);
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+        assertThat(response.getStatus(), is(RedirectCheckResponse.Status.SUCCESS));
+        assertThat(response.isCleanRedirect(), is(true));
+    }
+
+    @Test
     public void itShouldEvaluateCleanChainEvenWhenOtherFailuresOccur() throws Exception {
 
         testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
@@ -96,5 +107,20 @@ public class RedirectCheckResponseTest {
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
         assertThat(response.isCleanRedirect(), is(true));
 
+    }
+
+    @Test
+    public void shouldEvaluateRedirectChainProperly() throws Exception {
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
+        testChain.addElement(new RedirectChainElement(302, new URI("http://destination2")));
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination3")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination4")));
+
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination4", 200);
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+
+        assertThat(response.getHttpStatusChain(), Matchers.contains(301, 302, 301, 200));
     }
 }

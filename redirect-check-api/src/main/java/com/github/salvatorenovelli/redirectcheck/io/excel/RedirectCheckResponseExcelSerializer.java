@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class RedirectCheckResponseExcelSerializer {
 
-    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "RESULT", "ResultReason", "Expected URI", "Actual URI", "Last HTTP Status", "Clean Redirect"};
+    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "RESULT", "ResultReason", "Expected URI", "Actual URI", "Last HTTP Status", "Clean Redirect", "Redirect Chain"};
     private final Workbook wb;
     private final Sheet sheet;
     private final String filename;
@@ -70,21 +70,23 @@ public class RedirectCheckResponseExcelSerializer {
     }
 
     private void addResponse(ResponseWrapper cr) {
-        List<String> fields = null;
+        List<String> fields;
         try {
             fields = Arrays.asList(
-                    String.valueOf(cr.lineNumber),
-                    cr.sourceURI,
-                    cr.result,
-                    cr.reason,
-                    cr.expectedURI,
-                    URLDecoder.decode(cr.actualURI, "UTF-8"),
-                    cr.lastHTTPStatus,
-                    String.valueOf(cr.isCleanRedirect));
+                    String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI,
+                    URLDecoder.decode(cr.actualURI, "UTF-8"), cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect),
+                    serializeRedirectChain(cr.redirectChain));
         } catch (UnsupportedEncodingException e) {
-            fields = Arrays.asList(String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI, cr.actualURI, cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect));
+            fields = Arrays.asList(String.valueOf(cr.lineNumber),
+                    cr.sourceURI, cr.result, cr.reason, cr.expectedURI,
+                    cr.actualURI, cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect),
+                    serializeRedirectChain(cr.redirectChain));
         }
         writeRow(fields);
+    }
+
+    private String serializeRedirectChain(List<Integer> redirectChain) {
+        return redirectChain.stream().map(String::valueOf).collect(Collectors.joining(", "));
     }
 
     private void writeRow(List<String> fields) {

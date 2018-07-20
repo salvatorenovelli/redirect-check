@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public class RedirectCheckResponse {
@@ -18,8 +19,6 @@ public class RedirectCheckResponse {
     private final int requestLineNumber;
     private String actualDestinationURI;
     private int lastHttpStatus = -1;
-    private boolean isCleanRedirect = false;
-
     private List<RedirectChainElement> redirectChain;
 
     private int numberOfRedirects;
@@ -41,8 +40,6 @@ public class RedirectCheckResponse {
         this.sourceURI = request.getSourceURI();
         this.redirectChain = redirectChain.getElements();
         this.expectedDestinationURI = request.getExpectedDestination();
-
-        isCleanRedirect = redirectChain.getElements().stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
 
         if (redirectChain.isFailed()) {
             status = Status.FAILURE;
@@ -137,7 +134,11 @@ public class RedirectCheckResponse {
     }
 
     public boolean isCleanRedirect() {
-        return isCleanRedirect;
+        return redirectChain.stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
+    }
+
+    public List<Integer> getHttpStatusChain() {
+        return redirectChain.stream().map(RedirectChainElement::getHttpStatus).collect(Collectors.toList());
     }
 
     public enum Status {
