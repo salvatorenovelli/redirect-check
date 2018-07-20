@@ -3,6 +3,7 @@ package com.github.salvatorenovelli.redirectcheck.model;
 import org.junit.Test;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -80,5 +81,20 @@ public class RedirectCheckResponseTest {
 
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.SUCCESS));
         assertThat(response.isCleanRedirect(), is(false));
+    }
+
+    @Test
+    public void itShouldEvaluateCleanChainEvenWhenOtherFailuresOccur() throws Exception {
+
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination2")));
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination4", 200);
+
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+        assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
+        assertThat(response.isCleanRedirect(), is(true));
+
     }
 }

@@ -42,6 +42,8 @@ public class RedirectCheckResponse {
         this.redirectChain = redirectChain.getElements();
         this.expectedDestinationURI = request.getExpectedDestination();
 
+        isCleanRedirect = redirectChain.getElements().stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
+
         if (redirectChain.isFailed()) {
             status = Status.FAILURE;
             statusMessage = redirectChain.getStatus();
@@ -71,7 +73,6 @@ public class RedirectCheckResponse {
             return;
         }
 
-        isCleanRedirect = redirectChain.getElements().stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
 
         status = Status.SUCCESS;
         statusMessage = "";
