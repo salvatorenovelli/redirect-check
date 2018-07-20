@@ -18,6 +18,7 @@ public class RedirectCheckResponse {
     private final int requestLineNumber;
     private String actualDestinationURI;
     private int lastHttpStatus = -1;
+    private boolean isCleanRedirect = false;
 
     private List<RedirectChainElement> redirectChain;
 
@@ -69,6 +70,8 @@ public class RedirectCheckResponse {
             statusMessage = STATUS_CODE_MISMATCH + request.getExpectedStatusCode();
             return;
         }
+
+        isCleanRedirect = redirectChain.getElements().stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
 
         status = Status.SUCCESS;
         statusMessage = "";
@@ -130,6 +133,10 @@ public class RedirectCheckResponse {
 
     public int getRequestLineNumber() {
         return requestLineNumber;
+    }
+
+    public boolean isCleanRedirect() {
+        return isCleanRedirect;
     }
 
     public enum Status {

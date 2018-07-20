@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class RedirectCheckResponseExcelSerializer {
 
-    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "RESULT", "ResultReason", "Expected URI", "Actual URI", "Last HTTP Status"};
+    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "RESULT", "ResultReason", "Expected URI", "Actual URI", "Last HTTP Status", "Clean Redirect"};
     private final Workbook wb;
     private final Sheet sheet;
     private final String filename;
@@ -72,9 +72,17 @@ public class RedirectCheckResponseExcelSerializer {
     private void addResponse(ResponseWrapper cr) {
         List<String> fields = null;
         try {
-            fields = Arrays.asList(String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI, URLDecoder.decode(cr.actualURI, "UTF-8"), cr.lastHTTPStatus);
+            fields = Arrays.asList(
+                    String.valueOf(cr.lineNumber),
+                    cr.sourceURI,
+                    cr.result,
+                    cr.reason,
+                    cr.expectedURI,
+                    URLDecoder.decode(cr.actualURI, "UTF-8"),
+                    cr.lastHTTPStatus,
+                    String.valueOf(cr.isCleanRedirect));
         } catch (UnsupportedEncodingException e) {
-            fields = Arrays.asList(String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI, cr.actualURI, cr.lastHTTPStatus);
+            fields = Arrays.asList(String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI, cr.actualURI, cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect));
         }
         writeRow(fields);
     }

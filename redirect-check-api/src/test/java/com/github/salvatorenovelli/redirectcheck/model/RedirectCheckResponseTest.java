@@ -12,41 +12,73 @@ import static org.hamcrest.core.Is.is;
 public class RedirectCheckResponseTest {
 
 
-    public static final RedirectChain REDIRECT_CHAIN = new RedirectChain();
-    public static final RedirectSpecification TEST_SPEC = RedirectSpecification.createValid(0, "http://www.example.com", "http://www.example.com/", 200);
+    private RedirectChain testChain = new RedirectChain();
+    private static final RedirectSpecification TEST_SPEC = RedirectSpecification.createValid(0, "http://www.example.com", "http://www.example.com/", 200);
 
     @Test
-    public void getStatus() throws Exception {
-        REDIRECT_CHAIN.markAsFailed("Test");
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, REDIRECT_CHAIN);
+    public void getStatus() {
+        testChain.markAsFailed("Test");
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, testChain);
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
         assertThat(response.getStatusMessage(), containsString("Test"));
     }
 
     @Test
     public void unmatchingDestinationShouldBeReported() throws Exception {
-        REDIRECT_CHAIN.addElement(new RedirectChainElement(200, new URI("http://wrong-destination")));
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, REDIRECT_CHAIN);
+        testChain.addElement(new RedirectChainElement(200, new URI("http://wrong-destination")));
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, testChain);
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
         assertThat(response.getStatusMessage(), containsString(RedirectCheckResponse.DESTINATION_MISMATCH));
     }
 
     @Test
     public void unmatchingHttpStatusShouldBeReportedAsError() throws Exception {
-        REDIRECT_CHAIN.addElement(new RedirectChainElement(500, new URI(TEST_SPEC.getExpectedDestination())));
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, REDIRECT_CHAIN);
+        testChain.addElement(new RedirectChainElement(500, new URI(TEST_SPEC.getExpectedDestination())));
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, testChain);
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
         assertThat(response.getStatusMessage(), containsString(RedirectCheckResponse.STATUS_CODE_MISMATCH));
     }
 
     @Test
     public void invalidDestingTionIsMarkedAsFailure() throws Exception {
-        REDIRECT_CHAIN.addElement(new RedirectChainElement(200, new URI("http://destination")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination")));
         RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://www.example.com", "http://invalidDst invalid", 200);
 
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, REDIRECT_CHAIN);
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
         assertThat(response.getStatus(), is(RedirectCheckResponse.Status.FAILURE));
         assertThat(response.getStatusMessage(), containsString(RedirectCheckResponse.DESTINATION_MISMATCH));
 
+    }
+
+
+    @Test
+    public void shouldMarkCleanChainInCaseOfOnly301Redirects() throws Exception {
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination2")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination3")));
+
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination3", 200);
+
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+        assertThat(response.getStatus(), is(RedirectCheckResponse.Status.SUCCESS));
+        assertThat(response.isCleanRedirect(), is(true));
+    }
+
+    @Test
+    public void shouldMarkNotCleanChainInCaseOfNon301Redirects() throws Exception {
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
+        testChain.addElement(new RedirectChainElement(302, new URI("http://destination2")));
+        testChain.addElement(new RedirectChainElement(301, new URI("http://destination3")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://destination4")));
+
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination4", 200);
+
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+        assertThat(response.getStatus(), is(RedirectCheckResponse.Status.SUCCESS));
+        assertThat(response.isCleanRedirect(), is(false));
     }
 }
