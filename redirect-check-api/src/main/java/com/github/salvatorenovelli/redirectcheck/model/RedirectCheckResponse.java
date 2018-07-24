@@ -3,6 +3,7 @@ package com.github.salvatorenovelli.redirectcheck.model;
 import lombok.EqualsAndHashCode;
 
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class RedirectCheckResponse {
     private final int requestLineNumber;
     private String actualDestinationURI;
     private int lastHttpStatus = -1;
-    private List<RedirectChainElement> redirectChain;
+    private final List<RedirectChainElement> redirectChain;
 
     private int numberOfRedirects;
 
@@ -31,6 +32,7 @@ public class RedirectCheckResponse {
         requestLineNumber = invalidRequest.getLineNumber();
         sourceURI = "n/a";
         expectedDestinationURI = "n/a";
+        redirectChain = Collections.emptyList();
     }
 
     private RedirectCheckResponse(RedirectSpecification request, RedirectChain redirectChain) {
