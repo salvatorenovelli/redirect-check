@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class RedirectCheckResponseExcelSerializer {
 
-    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "RESULT", "ResultReason", "Expected URI", "Actual URI", "Last HTTP Status", "Clean Redirect", "Redirect Chain"};
+    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "Result", "Result Reason", "Expected URI", "Actual URI", "Last Status Code", "Permanent Redirect", "Redirect Chain"};
     private final Workbook wb;
     private final Sheet sheet;
     private final String filename;
@@ -25,7 +25,7 @@ public class RedirectCheckResponseExcelSerializer {
     private SortedSet<ResponseWrapper> responses = new TreeSet<>(Comparator.comparingInt(ResponseWrapper::getLineNumber));
     private int curRowIndex = 0;
 
-    public RedirectCheckResponseExcelSerializer(String outFileName) throws IOException {
+    public RedirectCheckResponseExcelSerializer(String outFileName) {
 
         this.filename = outFileName;
         wb = new XSSFWorkbook();
@@ -37,7 +37,7 @@ public class RedirectCheckResponseExcelSerializer {
 
     }
 
-    public void addResponses(List<RedirectCheckResponse> responses) throws IOException {
+    public void addResponses(List<RedirectCheckResponse> responses) {
         this.responses.addAll(responses.stream().map(ResponseWrapper::new).collect(Collectors.toList()));
     }
 
@@ -50,7 +50,12 @@ public class RedirectCheckResponseExcelSerializer {
             responses.forEach(this::addResponse);
             for (int i = 0; i < HEADERS.length; i++) {
                 sheet.autoSizeColumn(i, true);
+                int columnWidth = sheet.getColumnWidth(i);
+                if (columnWidth > 10000) {
+                    sheet.setColumnWidth(i, 10000);
+                }
             }
+
         } finally {
             FileOutputStream out = new FileOutputStream(filename);
             wb.write(out);

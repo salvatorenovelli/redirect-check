@@ -12,7 +12,7 @@ public class RedirectCheckResponse {
 
 
     static final String DESTINATION_MISMATCH = "Destination mismatch";
-    static final String STATUS_CODE_MISMATCH = "HTTP Status is not ";
+    static final String STATUS_CODE_MISMATCH = "Status is not ";
     static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
 
     private final String sourceURI;
