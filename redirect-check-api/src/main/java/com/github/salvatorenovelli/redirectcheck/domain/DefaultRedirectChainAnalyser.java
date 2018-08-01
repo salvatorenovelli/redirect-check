@@ -51,6 +51,7 @@ public class DefaultRedirectChainAnalyser implements RedirectChainAnalyser {
 
                 curResponse = requestFactory.createRequest(currentURI).execute();
                 int httpStatus = curResponse.getStatusCode();
+
                 result.addElement(new RedirectChainElement(httpStatus, currentURI));
 
                 if (isRedirect(httpStatus)) {

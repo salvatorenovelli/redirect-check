@@ -131,9 +131,8 @@ public class RedirectCheckResponseTest {
     public void statusTextForMultipleError() throws Exception {
 
         //Given a dirty redirect chain
-        testChain.addElement(new RedirectChainElement(301, new URI("http://destination1")));
         testChain.addElement(new RedirectChainElement(302, new URI("http://destination2")));
-        testChain.addElement(new RedirectChainElement(301, new URI("http://destination3")));
+
         //With status code mismatch
         testChain.addElement(new RedirectChainElement(404, new URI("http://destination4")));
 
@@ -143,6 +142,21 @@ public class RedirectCheckResponseTest {
 
         assertThat(response.getStatus(), is(FAILURE));
         assertThat(response.getStatusMessage(), is(DESTINATION_MISMATCH + ", " + STATUS_CODE_MISMATCH + EXPECTED_STATUS_CODE + ", " + NON_PERMANENT_REDIRECT));
+    }
+
+
+    @Test
+    public void shouldDecodeRedirectLocationAndConsiderItMatch() throws Exception {
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://ετικέτα", "http://προϊόντα", EXPECTED_STATUS_CODE);
+
+        testChain.addElement(new RedirectChainElement(301, new URI("http://ετικέτα")));
+        testChain.addElement(new RedirectChainElement(200, new URI("http://%cf%80%cf%81%ce%bf%cf%8a%cf%8c%ce%bd%cf%84%ce%b1")));
+
+        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
+        assertThat(response.getStatus(), is(SUCCESS));
+
     }
 
 

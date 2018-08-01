@@ -19,12 +19,12 @@ class MockHttpRequestFactory implements HttpRequestFactory {
     private final Map<URI, IOException> exceptions = new HashMap<>();
 
 
-    public MockHttpRequestFactory withRedirect(String source, int httpStatus, String dstLocation) throws URISyntaxException {
+    MockHttpRequestFactory withRedirect(String source, int httpStatus, String dstLocation) throws URISyntaxException {
         responses.put(new URI(source), new HttpResponse(httpStatus, new URI(dstLocation)));
         return this;
     }
 
-    public MockHttpRequestFactory withOk(String source) throws URISyntaxException {
+    MockHttpRequestFactory withOk(String source) throws URISyntaxException {
         responses.put(new URI(source), new HttpResponse(HttpStatus.SC_OK, new URI(source)));
         return this;
     }
@@ -39,7 +39,7 @@ class MockHttpRequestFactory implements HttpRequestFactory {
         };
     }
 
-    public void withIOException(String sourceURI, String errorMessage) throws URISyntaxException {
+    void withIOException(String sourceURI, String errorMessage) throws URISyntaxException {
         exceptions.put(new URI(sourceURI), new IOException(errorMessage));
     }
 }
