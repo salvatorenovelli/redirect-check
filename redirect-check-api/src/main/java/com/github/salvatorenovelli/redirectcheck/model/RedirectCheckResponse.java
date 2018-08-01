@@ -13,6 +13,7 @@ public class RedirectCheckResponse {
 
     public static final String DESTINATION_MISMATCH = "Destination doesn't match";
     public static final String STATUS_CODE_MISMATCH = "HTTP Status is not ";
+    public static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
     private final Status status;
     private final String statusMessage;
     private final String sourceURI;
@@ -69,6 +70,12 @@ public class RedirectCheckResponse {
         if (lastHttpStatus != request.getExpectedStatusCode()) {
             status = Status.FAILURE;
             statusMessage = STATUS_CODE_MISMATCH + request.getExpectedStatusCode();
+            return;
+        }
+
+        if (!isCleanRedirect()) {
+            status = Status.FAILURE;
+            statusMessage = NON_PERMANENT_REDIRECT;
             return;
         }
 
