@@ -11,18 +11,21 @@ import java.util.stream.Collectors;
 public class RedirectCheckResponse {
 
 
-    public static final String DESTINATION_MISMATCH = "Destination doesn't match";
-    public static final String STATUS_CODE_MISMATCH = "HTTP Status is not ";
-    public static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
-    private final Status status;
-    private final String statusMessage;
+    static final String DESTINATION_MISMATCH = "Destination mismatch";
+    static final String STATUS_CODE_MISMATCH = "HTTP Status is not ";
+    static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
+
     private final String sourceURI;
     private final String expectedDestinationURI;
-    private final int requestLineNumber;
     private String actualDestinationURI;
-    private int lastHttpStatus = -1;
+
+    private final int requestLineNumber;
     private final List<RedirectChainElement> redirectChain;
 
+    private Status status = Status.SUCCESS;
+    private String statusMessage = "";
+
+    private int lastHttpStatus = -1;
     private int numberOfRedirects;
 
 
@@ -46,7 +49,7 @@ public class RedirectCheckResponse {
 
         if (redirectChain.isFailed()) {
             status = Status.FAILURE;
-            statusMessage = redirectChain.getStatus();
+            statusMessage = addStatusMessage(redirectChain.getStatus());
             return;
         }
 
@@ -54,6 +57,27 @@ public class RedirectCheckResponse {
         this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
+        verifyDestinationMismatch(request);
+        verifyStatusCodeMismatch(request);
+        verifyDirtyRedirect();
+
+    }
+
+    private void verifyDirtyRedirect() {
+        if (!isCleanRedirect()) {
+            status = Status.FAILURE;
+            statusMessage = addStatusMessage(NON_PERMANENT_REDIRECT);
+        }
+    }
+
+    private void verifyStatusCodeMismatch(RedirectSpecification request) {
+        if (lastHttpStatus != request.getExpectedStatusCode()) {
+            status = Status.FAILURE;
+            statusMessage = addStatusMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode());
+        }
+    }
+
+    private void verifyDestinationMismatch(RedirectSpecification request) {
         boolean compare = false;
         try {
             compare = EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI);
@@ -63,25 +87,13 @@ public class RedirectCheckResponse {
 
         if (!compare) {
             status = Status.FAILURE;
-            statusMessage = DESTINATION_MISMATCH;
-            return;
+            statusMessage = addStatusMessage(DESTINATION_MISMATCH);
         }
+    }
 
-        if (lastHttpStatus != request.getExpectedStatusCode()) {
-            status = Status.FAILURE;
-            statusMessage = STATUS_CODE_MISMATCH + request.getExpectedStatusCode();
-            return;
-        }
-
-        if (!isCleanRedirect()) {
-            status = Status.FAILURE;
-            statusMessage = NON_PERMANENT_REDIRECT;
-            return;
-        }
-
-
-        status = Status.SUCCESS;
-        statusMessage = "";
+    private String addStatusMessage(String status) {
+        if (this.statusMessage.isEmpty()) return status;
+        return this.statusMessage + ", " + status;
     }
 
     public static RedirectCheckResponse createResponse(RedirectSpecification request, RedirectChain redirectChain) {
