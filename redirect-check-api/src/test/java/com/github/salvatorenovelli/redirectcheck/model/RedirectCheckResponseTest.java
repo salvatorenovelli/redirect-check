@@ -165,9 +165,4 @@ public class RedirectCheckResponseTest {
         testChain.addElement(new RedirectChainElement(301, new URI("http://destination3")));
         testChain.addElement(new RedirectChainElement(200, new URI("http://destination4")));
     }
-
-    @Test
-    public void dirtyRedirectChainShouldHaveStatusMessage() {
-
-    }
 }
