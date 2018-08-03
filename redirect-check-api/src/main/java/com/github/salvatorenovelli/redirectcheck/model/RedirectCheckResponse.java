@@ -2,10 +2,11 @@ package com.github.salvatorenovelli.redirectcheck.model;
 
 import lombok.EqualsAndHashCode;
 
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.salvatorenovelli.redirectcheck.model.VerificationResult.Verification.verify;
 
 @EqualsAndHashCode
 public class RedirectCheckResponse {
@@ -61,37 +62,16 @@ public class RedirectCheckResponse {
         this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
+
         VerificationResult
                 .forEach(
-                        verifyDestinationMismatch(request),
-                        verifyStatusCodeMismatch(request),
-                        verifyPermanentRedirect()
+                        verify(() -> EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI)).orErrorMessage(DESTINATION_MISMATCH),
+                        verify(() -> lastHttpStatus == request.getExpectedStatusCode()).orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode()),
+                        verify(() -> isPermanentRedirect()).orErrorMessage(NON_PERMANENT_REDIRECT)
                 ).mapFailures((isSuccess, errorMessage) -> {
             status = Status.FAILURE;
             statusMessage = addStatusMessage(errorMessage);
         });
-    }
-
-    private VerificationResult verifyDestinationMismatch(RedirectSpecification request) {
-        try {
-            return VerificationResult
-                    .assertTrue(EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI))
-                    .orErrorMessage(DESTINATION_MISMATCH);
-        } catch (URISyntaxException e) {
-            return VerificationResult.failure(e.getMessage());
-        }
-    }
-
-    private VerificationResult verifyStatusCodeMismatch(RedirectSpecification request) {
-        return VerificationResult
-                .assertTrue(lastHttpStatus == request.getExpectedStatusCode())
-                .orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode());
-    }
-
-    private VerificationResult verifyPermanentRedirect() {
-        return VerificationResult
-                .assertTrue(isCleanRedirect())
-                .orErrorMessage(NON_PERMANENT_REDIRECT);
     }
 
     private String addStatusMessage(String status) {
@@ -157,7 +137,7 @@ public class RedirectCheckResponse {
         return requestLineNumber;
     }
 
-    public boolean isCleanRedirect() {
+    public boolean isPermanentRedirect() {
         return redirectChain.stream().filter(redirectChainElement -> redirectChainElement.getHttpStatus() != 301).count() == 1;
     }
 

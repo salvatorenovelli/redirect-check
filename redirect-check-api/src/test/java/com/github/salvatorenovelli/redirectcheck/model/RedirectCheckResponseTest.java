@@ -1,7 +1,6 @@
 package com.github.salvatorenovelli.redirectcheck.model;
 
 import com.github.salvatorenovelli.redirectcheck.model.exception.RedirectLoopException;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.net.URI;
@@ -72,7 +71,7 @@ public class RedirectCheckResponseTest {
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
 
         assertThat(response.getStatus(), is(SUCCESS));
-        assertThat(response.isCleanRedirect(), is(true));
+        assertThat(response.isPermanentRedirect(), is(true));
     }
 
     @Test
@@ -86,7 +85,7 @@ public class RedirectCheckResponseTest {
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
 
         assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.isCleanRedirect(), is(false));
+        assertThat(response.isPermanentRedirect(), is(false));
     }
 
     @Test
@@ -97,7 +96,7 @@ public class RedirectCheckResponseTest {
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
 
         assertThat(response.getStatus(), is(SUCCESS));
-        assertThat(response.isCleanRedirect(), is(true));
+        assertThat(response.isPermanentRedirect(), is(true));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class RedirectCheckResponseTest {
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
 
         assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.isCleanRedirect(), is(true));
+        assertThat(response.isPermanentRedirect(), is(true));
 
     }
 

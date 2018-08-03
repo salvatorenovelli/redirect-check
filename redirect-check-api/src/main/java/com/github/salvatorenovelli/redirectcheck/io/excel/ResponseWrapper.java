@@ -25,7 +25,7 @@ class ResponseWrapper {
                 cr.getExpectedDestinationURI(),
                 cr.getActualDestinationURI() != null ? cr.getActualDestinationURI() : "n/a",
                 cr.getLastHttpStatus() != -1 ? "" + cr.getLastHttpStatus() : "n/a",
-                cr.isCleanRedirect(), cr.getHttpStatusChain());
+                cr.isPermanentRedirect(), cr.getHttpStatusChain());
     }
 
     ResponseWrapper(RedirectSpecification specification) {

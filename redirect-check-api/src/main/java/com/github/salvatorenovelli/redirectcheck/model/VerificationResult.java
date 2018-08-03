@@ -16,9 +16,6 @@ class VerificationResult {
         return new VerificationMapperBuilder(destinationMatchResult);
     }
 
-    static VerificationResultBuilder assertTrue(boolean assertion) {
-        return new VerificationResultBuilder(assertion);
-    }
 
     private boolean isFailure() {
         return !success;
@@ -30,14 +27,22 @@ class VerificationResult {
     }
 
     public static class VerificationResultBuilder {
-        private final boolean assertion;
+        private final CheckedSupplier<Boolean> assertion;
 
-        public VerificationResultBuilder(boolean assertion) {
+        public VerificationResultBuilder(CheckedSupplier<Boolean> assertion) {
             this.assertion = assertion;
         }
 
         public VerificationResult orErrorMessage(String errorMessage) {
-            return new VerificationResult(assertion, !assertion ? errorMessage : "");
+
+            try {
+                Boolean assertionResult = assertion.apply();
+                return new VerificationResult(assertionResult, !assertionResult ? errorMessage : "");
+            } catch (Exception e) {
+                return VerificationResult.failure(e.getMessage());
+            }
+
+
         }
     }
 
@@ -53,5 +58,15 @@ class VerificationResult {
                     .filter(VerificationResult::isFailure)
                     .forEach(verificationResult -> biConsumer.accept(verificationResult.success, verificationResult.errorMessage));
         }
+    }
+
+    public static class Verification {
+        public static VerificationResultBuilder verify(CheckedSupplier<Boolean> supplier) {
+            return new VerificationResultBuilder(supplier);
+        }
+    }
+
+    public interface CheckedSupplier<T> {
+        T apply() throws Exception;
     }
 }
