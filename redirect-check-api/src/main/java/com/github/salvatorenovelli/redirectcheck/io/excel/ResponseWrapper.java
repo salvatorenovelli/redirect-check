@@ -34,13 +34,13 @@ class ResponseWrapper {
     ResponseWrapper(RedirectSpecification specification) {
         this(specification.getLineNumber(), specification.getSourceURI(),
                 RedirectCheckResponse.Status.FAILURE.toString(), specification.getErrorMessage(),
-                null, null, null,
+                false, false, false,
                 specification.getExpectedDestination(),
                 "n/a", "n/a", Collections.emptyList());
     }
 
     private ResponseWrapper(int lineNumber, String sourceURI, String result, String reason,
-                            Boolean isDestinationMatch, Boolean isHttpStatusCodeMatch, Boolean isPermanentRedirect,
+                            boolean isDestinationMatch, boolean isHttpStatusCodeMatch, boolean isPermanentRedirect,
                             String expectedURI, String actualURI, String lastHTTPStatus, List<Integer> redirectChain) {
         this.lineNumber = lineNumber;
         this.sourceURI = sourceURI;

@@ -51,6 +51,14 @@ class TestWorkbookBuilder {
         return serializeWorkbook(curRedirectChain, spec);
     }
 
+    public String serializeInvalidSpec(String message) throws IOException {
+        String outFileName = getTempFilename();
+        RedirectCheckResponseExcelSerializer redirectCheckResponseExcelSerializer = new RedirectCheckResponseExcelSerializer(outFileName);
+        redirectCheckResponseExcelSerializer.addInvalidSpecs(Arrays.asList(RedirectSpecification.createInvalid(0, message)));
+        redirectCheckResponseExcelSerializer.write();
+        return outFileName;
+    }
+
     private String serializeWorkbook(RedirectChain testChain, RedirectSpecification spec) throws IOException {
         String outFileName = getTempFilename();
         RedirectCheckResponseExcelSerializer redirectCheckResponseExcelSerializer = new RedirectCheckResponseExcelSerializer(outFileName);

@@ -101,6 +101,15 @@ public class RedirectCheckResponseExcelSerializerTest {
         assertThat(getFieldValue(workbookFilename, REDIRECT_CHAIN_COLUMN), is("301, 301, 302, 200"));
     }
 
+    @Test
+    public void invalidSpecShouldBeReported() throws Exception {
+        String workbookFilename = givenAnExcelWorkbook()
+                .serializeInvalidSpec("This was a total failure!");
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(FAILURE));
+        assertThat(getFieldValue(workbookFilename, REDIRECT_STATUS_ERROR_COLUMN), is("This was a total failure!"));
+    }
+
     private TestWorkbookBuilder givenAnExcelWorkbook() {
         return new TestWorkbookBuilder(temporaryFolder);
     }
