@@ -39,6 +39,14 @@ class TestWorkbookBuilder {
         return this;
     }
 
+
+    TestWorkbookBuilder withDestinationMatch(boolean match) {
+
+        curRedirectChain = createRedirectChain(match);
+
+        return this;
+    }
+
     String serialize() throws IOException {
         return serializeWorkbook(curRedirectChain, spec);
     }
@@ -49,6 +57,18 @@ class TestWorkbookBuilder {
         redirectCheckResponseExcelSerializer.addResponses(Collections.singletonList(RedirectCheckResponse.createResponse(spec, testChain)));
         redirectCheckResponseExcelSerializer.write();
         return outFileName;
+    }
+
+    private RedirectChain createRedirectChain(boolean destinationMatch) {
+
+        this.spec = RedirectSpecification.createValid(0, "http://destination0", "http://destination1" + (destinationMatch ? "" : "wrong"), 200);
+
+        RedirectChain testChain = new RedirectChain();
+        Arrays.stream(new int[]{301, 200})
+                .mapToObj(this::toRedirectChainElement)
+                .forEach(redirectChainElement -> addToChain(testChain, redirectChainElement));
+
+        return testChain;
     }
 
     private RedirectChain createRedirectChain(int... redirects) {

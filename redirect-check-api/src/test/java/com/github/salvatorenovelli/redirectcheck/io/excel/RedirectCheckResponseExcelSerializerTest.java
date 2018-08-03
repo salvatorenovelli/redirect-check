@@ -19,44 +19,77 @@ import static org.junit.Assert.assertThat;
 public class RedirectCheckResponseExcelSerializerTest {
 
     private static final int FIRST_VALID_ROW_SKIPPING_HEADER = 1;
-    private static final int REDIRECT_STATUS_COLUMN = 2;
+    private static final int GENERAL_STATUS_COLUMN = 2;
     private static final int REDIRECT_STATUS_ERROR_COLUMN = 3;
-    private static final int CLEAN_REDIRECT_COLUMN = 7;
-    private static final int REDIRECT_CHAIN_COLUMN = 8;
+    private static final int DESTINATION_MATCH_FLAG_COLUMN = 4;
+    private static final int STATUS_CODE_MATCH_FLAG_COLUMN = 5;
+    private static final int PERMANENT_REDIRECT_FLAG_COLUMN = 6;
+    private static final int REDIRECT_CHAIN_COLUMN = 10;
+    public static final String SUCCESS = "SUCCESS";
+    public static final String FAILURE = "FAILURE";
+
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void shouldSerializeNonCleanRedirect() throws Exception {
+    public void destinationMatchShouldBeFlagged() throws Exception {
         String workbookFilename = givenAnExcelWorkbook()
-                .withARedirectChainContaining302()
+                .withDestinationMatch(true)
                 .serialize();
-        assertThat(getWorkbookCleanRedirectResultField(workbookFilename), is(false));
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(SUCCESS));
+        assertThat(getFieldValue(workbookFilename, DESTINATION_MATCH_FLAG_COLUMN), is("true"));
     }
 
     @Test
-    public void shouldMarkStatusAppropriately() throws Exception {
+    public void destinationMismatchShouldBeFlagged() throws Exception {
         String workbookFilename = givenAnExcelWorkbook()
-                .withARedirectChainContaining302()
+                .withDestinationMatch(false)
                 .serialize();
-        assertThat(getWorkbookRedirectStatusField(workbookFilename), is("FAILURE"));
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(FAILURE));
+        assertThat(getFieldValue(workbookFilename, DESTINATION_MATCH_FLAG_COLUMN), is("false"));
     }
 
     @Test
-    public void shouldMarkStatusErrorAppropriately_NonPermanentRedirect() throws Exception {
+    public void statusCodeMatchShouldBeFlagged() throws Exception {
         String workbookFilename = givenAnExcelWorkbook()
-                .withARedirectChainContaining302()
+                .withARedirectChainWith(301, 200)
                 .serialize();
-        assertThat(getWorkbookRedirectStatusErrorField(workbookFilename), is("Non permanent redirect"));
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(SUCCESS));
+        assertThat(getFieldValue(workbookFilename, STATUS_CODE_MATCH_FLAG_COLUMN), is("true"));
     }
 
     @Test
-    public void shouldSerializeCleanRedirect() throws Exception {
+    public void statusCodeMismatchShouldBeFlagged() throws Exception {
+        String workbookFilename = givenAnExcelWorkbook()
+                .withARedirectChainWith(301, 404)
+                .serialize();
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(FAILURE));
+        assertThat(getFieldValue(workbookFilename, STATUS_CODE_MATCH_FLAG_COLUMN), is("false"));
+    }
+
+    @Test
+    public void permanentRedirectShouldBeFlagged() throws Exception {
         String workbookFilename = givenAnExcelWorkbook()
                 .withARedirectChainContainingOnly301()
                 .serialize();
-        assertThat(getWorkbookCleanRedirectResultField(workbookFilename), is(true));
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(SUCCESS));
+        assertThat(getFieldValue(workbookFilename, PERMANENT_REDIRECT_FLAG_COLUMN), is("true"));
+    }
+
+    @Test
+    public void nonPermanentRedirectShouldBeFlagged() throws Exception {
+        String workbookFilename = givenAnExcelWorkbook()
+                .withARedirectChainContaining302()
+                .serialize();
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(FAILURE));
+        assertThat(getFieldValue(workbookFilename, PERMANENT_REDIRECT_FLAG_COLUMN), is("false"));
     }
 
     @Test
@@ -65,28 +98,13 @@ public class RedirectCheckResponseExcelSerializerTest {
                 .withARedirectChainWith(301, 301, 302, 200)
                 .serialize();
 
-        assertThat(getWorkbookRedirectChainField(workbookFilename), is("301, 301, 302, 200"));
+        assertThat(getFieldValue(workbookFilename, REDIRECT_CHAIN_COLUMN), is("301, 301, 302, 200"));
     }
 
     private TestWorkbookBuilder givenAnExcelWorkbook() {
         return new TestWorkbookBuilder(temporaryFolder);
     }
 
-    private boolean getWorkbookCleanRedirectResultField(String outFileName) throws IOException, InvalidFormatException {
-        return Boolean.parseBoolean(getFieldValue(outFileName, CLEAN_REDIRECT_COLUMN));
-    }
-
-    private String getWorkbookRedirectChainField(String outFileName) throws IOException, InvalidFormatException {
-        return getFieldValue(outFileName, REDIRECT_CHAIN_COLUMN);
-    }
-
-    private String getWorkbookRedirectStatusField(String outFileName) throws IOException, InvalidFormatException {
-        return getFieldValue(outFileName, REDIRECT_STATUS_COLUMN);
-    }
-
-    private String getWorkbookRedirectStatusErrorField(String outFileName) throws IOException, InvalidFormatException {
-        return getFieldValue(outFileName, REDIRECT_STATUS_ERROR_COLUMN);
-    }
 
     private String getFieldValue(String outFileName, int column) throws IOException, InvalidFormatException {
         Workbook sheets = WorkbookFactory.create(new FileInputStream(outFileName));

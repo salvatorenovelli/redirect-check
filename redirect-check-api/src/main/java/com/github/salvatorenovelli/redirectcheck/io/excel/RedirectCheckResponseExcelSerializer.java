@@ -13,16 +13,18 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparingInt;
+
 public class RedirectCheckResponseExcelSerializer {
 
-    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "Result", "Result Reason", "Expected URI", "Actual URI", "Last Status Code", "Permanent Redirect", "Redirect Chain"};
+    private static final String[] HEADERS = new String[]{"Line #", "SourceURI", "Result", "Result Reason", "Destination Match", "Status Code Match", "Permanent Redirect", "Expected URI", "Actual URI", "Last Status Code", "Redirect Chain"};
     private final Workbook wb;
     private final Sheet sheet;
     private final String filename;
     private final CellStyle HEADERS_STYLE;
     private final CellStyle ROW_STYLE;
 
-    private SortedSet<ResponseWrapper> responses = new TreeSet<>(Comparator.comparingInt(ResponseWrapper::getLineNumber));
+    private SortedSet<ResponseWrapper> responses = new TreeSet<>(comparingInt(ResponseWrapper::getLineNumber));
     private int curRowIndex = 0;
 
     public RedirectCheckResponseExcelSerializer(String outFileName) {
@@ -78,14 +80,16 @@ public class RedirectCheckResponseExcelSerializer {
         List<String> fields;
         try {
             fields = Arrays.asList(
-                    String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason, cr.expectedURI,
-                    URLDecoder.decode(cr.actualURI, "UTF-8"), cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect),
+                    String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason,
+                    String.valueOf(cr.isDestinationMatch), String.valueOf(cr.isHttpStatusCodeMatch), String.valueOf(cr.isPermanentRedirect),
+                    cr.expectedURI,
+                    URLDecoder.decode(cr.actualURI, "UTF-8"), cr.lastHTTPStatus,
                     serializeRedirectChain(cr.redirectChain));
         } catch (UnsupportedEncodingException e) {
-            fields = Arrays.asList(String.valueOf(cr.lineNumber),
-                    cr.sourceURI, cr.result, cr.reason, cr.expectedURI,
-                    cr.actualURI, cr.lastHTTPStatus, String.valueOf(cr.isCleanRedirect),
-                    serializeRedirectChain(cr.redirectChain));
+            fields = Arrays.asList(String.valueOf(cr.lineNumber), cr.sourceURI, cr.result, cr.reason,
+                    "n/a", "n/a", "n/a",
+                    cr.expectedURI,
+                    cr.actualURI, cr.lastHTTPStatus, serializeRedirectChain(cr.redirectChain));
         }
         writeRow(fields);
     }

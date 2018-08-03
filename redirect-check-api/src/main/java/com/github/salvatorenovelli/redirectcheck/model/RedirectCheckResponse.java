@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.salvatorenovelli.redirectcheck.model.EscapedUriComparator.compare;
-import static com.github.salvatorenovelli.redirectcheck.model.VerificationResult.Verification.verification;
+import static com.github.salvatorenovelli.redirectcheck.model.Verification.of;
 
 @EqualsAndHashCode
 public class RedirectCheckResponse {
@@ -16,9 +16,9 @@ public class RedirectCheckResponse {
     static final String STATUS_CODE_MISMATCH = "Status is not ";
     static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
 
+    private boolean generalFailure = false;
     private boolean statusCodeMatch = true;
     private boolean destinationMatch = true;
-    private boolean permanentRedirect = true;
 
     private final String sourceURI;
     private final String expectedDestinationURI;
@@ -70,15 +70,11 @@ public class RedirectCheckResponse {
         this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
+        destinationMatch = of(() -> compare(actualDestinationURI, request.getExpectedDestination())).onException(exceptionMessage -> this.statusMessage = addStatusMessage(exceptionMessage));
+        statusCodeMatch = lastHttpStatus == request.getExpectedStatusCode();
 
-        VerificationResult.of(
-                verification(() -> compare(actualDestinationURI, request.getExpectedDestination())).orErrorMessage(DESTINATION_MISMATCH),
-                verification(() -> lastHttpStatus == request.getExpectedStatusCode()).orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode()),
-                verification(() -> isPermanentRedirect()).orErrorMessage(NON_PERMANENT_REDIRECT)
-        ).forEachFailure((errorMessage) -> {
-            status = Status.FAILURE;
-            statusMessage = addStatusMessage(errorMessage);
-        });
+        status = destinationMatch && statusCodeMatch && isPermanentRedirect() ? Status.SUCCESS : Status.FAILURE;
+
     }
 
     public String getActualDestinationURI() {
@@ -143,6 +139,15 @@ public class RedirectCheckResponse {
             throw new IllegalArgumentException(s);
         }
     }
+
+    public boolean isDestinationMatch() {
+        return destinationMatch;
+    }
+
+    public boolean isStatusCodeMatch() {
+        return statusCodeMatch;
+    }
+
 
     public enum Status {
         SUCCESS, FAILURE

@@ -32,32 +32,34 @@ public class RedirectCheckResponseTest {
     }
 
     @Test
-    public void unmatchingDestinationShouldBeReported() throws Exception {
+    public void destinationMismatchIsMarkedAsFailure() throws Exception {
         testChain.addElement(new RedirectChainElement(200, new URI("http://wrong-destination")));
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, testChain);
         assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.getStatusMessage(), containsString(DESTINATION_MISMATCH));
+        assertThat(response.isDestinationMatch(), is(false));
     }
 
     @Test
-    public void unmatchingHttpStatusShouldBeReportedAsError() throws Exception {
+    public void statusCodeMismatchIsMarkedAsFailure() throws Exception {
         testChain.addElement(new RedirectChainElement(500, new URI(TEST_SPEC.getExpectedDestination())));
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(TEST_SPEC, testChain);
         assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.getStatusMessage(), containsString(STATUS_CODE_MISMATCH));
+        assertThat(response.isStatusCodeMatch(), is(false));
     }
+
 
     @Test
-    public void invalidDestingTionIsMarkedAsFailure() throws Exception {
-        testChain.addElement(new RedirectChainElement(200, new URI("http://destination")));
-        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://www.example.com", "http://invalidDstinvalid", 200);
+    public void nonPermanentRedirectIsMarkedAsFailure() throws Exception {
+
+        givenADirtyRedirectChain();
+
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination4", 200);
 
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
+
         assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.getStatusMessage(), containsString(DESTINATION_MISMATCH));
-
+        assertThat(response.isPermanentRedirect(), is(false));
     }
-
 
     @Test
     public void shouldMarkCleanChainInCaseOfOnly301Redirects() throws Exception {
@@ -72,20 +74,6 @@ public class RedirectCheckResponseTest {
 
         assertThat(response.getStatus(), is(SUCCESS));
         assertThat(response.isPermanentRedirect(), is(true));
-    }
-
-    @Test
-    public void shouldMarkNotCleanChainInCaseOfNon301Redirects() throws Exception {
-
-        givenADirtyRedirectChain();
-
-
-        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://destination4", 200);
-
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
-
-        assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.isPermanentRedirect(), is(false));
     }
 
     @Test
@@ -123,24 +111,6 @@ public class RedirectCheckResponseTest {
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
 
         assertThat(response.getStatus(), is(FAILURE));
-    }
-
-
-    @Test
-    public void statusTextForMultipleError() throws Exception {
-
-        //Given a dirty redirect chain
-        testChain.addElement(new RedirectChainElement(302, new URI("http://destination2")));
-
-        //With status code mismatch
-        testChain.addElement(new RedirectChainElement(404, new URI("http://destination4")));
-
-        //And destination mismatch
-        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://destination0", "http://wrong_destination", EXPECTED_STATUS_CODE);
-        RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
-
-        assertThat(response.getStatus(), is(FAILURE));
-        assertThat(response.getStatusMessage(), is(DESTINATION_MISMATCH + ", " + STATUS_CODE_MISMATCH + EXPECTED_STATUS_CODE + ", " + NON_PERMANENT_REDIRECT));
     }
 
 

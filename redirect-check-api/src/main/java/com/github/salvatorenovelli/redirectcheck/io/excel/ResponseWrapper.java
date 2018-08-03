@@ -15,38 +15,43 @@ class ResponseWrapper {
     final String lastHTTPStatus;
     final String sourceURI;
     final int lineNumber;
-    final boolean isCleanRedirect;
     final List<Integer> redirectChain;
+    final boolean isDestinationMatch;
+    final boolean isHttpStatusCodeMatch;
+    final boolean isPermanentRedirect;
 
     ResponseWrapper(RedirectCheckResponse cr) {
         this(cr.getRequestLineNumber(), cr.getSourceURI(),
                 cr.getStatus().toString(),
                 cr.getStatusMessage(),
+                cr.isDestinationMatch(), cr.isStatusCodeMatch(), cr.isPermanentRedirect(),
                 cr.getExpectedDestinationURI(),
                 cr.getActualDestinationURI() != null ? cr.getActualDestinationURI() : "n/a",
                 cr.getLastHttpStatus() != -1 ? "" + cr.getLastHttpStatus() : "n/a",
-                cr.isPermanentRedirect(), cr.getHttpStatusChain());
+                cr.getHttpStatusChain());
     }
 
     ResponseWrapper(RedirectSpecification specification) {
-        this(specification.getLineNumber(),
-                specification.getSourceURI(),
-                RedirectCheckResponse.Status.FAILURE.toString(),
-                specification.getErrorMessage(),
+        this(specification.getLineNumber(), specification.getSourceURI(),
+                RedirectCheckResponse.Status.FAILURE.toString(), specification.getErrorMessage(),
+                null, null, null,
                 specification.getExpectedDestination(),
-                "n/a", "n/a", false, Collections.emptyList());
+                "n/a", "n/a", Collections.emptyList());
     }
 
-    private ResponseWrapper(int lineNumber, String sourceURI, String result, String reason, String expectedURI,
-                            String actualURI, String lastHTTPStatus, boolean isCleanRedirect, List<Integer> redirectChain) {
+    private ResponseWrapper(int lineNumber, String sourceURI, String result, String reason,
+                            Boolean isDestinationMatch, Boolean isHttpStatusCodeMatch, Boolean isPermanentRedirect,
+                            String expectedURI, String actualURI, String lastHTTPStatus, List<Integer> redirectChain) {
         this.lineNumber = lineNumber;
         this.sourceURI = sourceURI;
         this.result = result;
         this.reason = reason;
+        this.isDestinationMatch = isDestinationMatch;
+        this.isHttpStatusCodeMatch = isHttpStatusCodeMatch;
+        this.isPermanentRedirect = isPermanentRedirect;
         this.expectedURI = expectedURI;
         this.actualURI = actualURI;
         this.lastHTTPStatus = lastHTTPStatus;
-        this.isCleanRedirect = isCleanRedirect;
         this.redirectChain = redirectChain;
     }
 
