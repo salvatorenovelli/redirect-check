@@ -35,6 +35,14 @@ public class RedirectCheckResponse {
     private int numberOfRedirects;
 
 
+    public static RedirectCheckResponse createResponse(RedirectSpecification request, RedirectChain redirectChain) {
+        return new RedirectCheckResponse(request, redirectChain);
+    }
+
+    public static RedirectCheckResponse createResponseForInvalidSpec(RedirectSpecification request) {
+        return new RedirectCheckResponse(request);
+    }
+
     private RedirectCheckResponse(RedirectSpecification invalidRequest) {
         assertTrue(!invalidRequest.isValid(), "This constructor should be used only for invalid spec requests.");
         status = Status.FAILURE;
@@ -72,25 +80,6 @@ public class RedirectCheckResponse {
             status = Status.FAILURE;
             statusMessage = addStatusMessage(errorMessage);
         });
-    }
-
-    private String addStatusMessage(String status) {
-        if (this.statusMessage.isEmpty()) return status;
-        return this.statusMessage + ", " + status;
-    }
-
-    public static RedirectCheckResponse createResponse(RedirectSpecification request, RedirectChain redirectChain) {
-        return new RedirectCheckResponse(request, redirectChain);
-    }
-
-    public static RedirectCheckResponse createResponseForInvalidSpec(RedirectSpecification request) {
-        return new RedirectCheckResponse(request);
-    }
-
-    private void assertTrue(boolean valid, String s) {
-        if (!valid) {
-            throw new IllegalArgumentException(s);
-        }
     }
 
     public String getActualDestinationURI() {
@@ -143,6 +132,17 @@ public class RedirectCheckResponse {
 
     public List<Integer> getHttpStatusChain() {
         return redirectChain.stream().map(RedirectChainElement::getHttpStatus).collect(Collectors.toList());
+    }
+
+    private String addStatusMessage(String status) {
+        if (this.statusMessage.isEmpty()) return status;
+        return this.statusMessage + ", " + status;
+    }
+
+    private void assertTrue(boolean valid, String s) {
+        if (!valid) {
+            throw new IllegalArgumentException(s);
+        }
     }
 
     public enum Status {
