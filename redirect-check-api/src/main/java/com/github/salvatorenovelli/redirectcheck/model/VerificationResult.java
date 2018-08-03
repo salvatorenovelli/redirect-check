@@ -1,6 +1,6 @@
 package com.github.salvatorenovelli.redirectcheck.model;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 class VerificationResult {
@@ -12,8 +12,9 @@ class VerificationResult {
         return new VerificationResult(false, message);
     }
 
-    static VerificationMapperBuilder forEach(VerificationResult... destinationMatchResult) {
-        return new VerificationMapperBuilder(destinationMatchResult);
+
+    public static VerificationMapperBuilder of(VerificationResult... results) {
+        return new VerificationMapperBuilder(results);
     }
 
 
@@ -47,21 +48,21 @@ class VerificationResult {
     }
 
     public static class VerificationMapperBuilder {
-        private final VerificationResult[] destinationMatchResult;
+        private final VerificationResult[] results;
 
-        public VerificationMapperBuilder(VerificationResult... destinationMatchResult) {
-            this.destinationMatchResult = destinationMatchResult;
+        public VerificationMapperBuilder(VerificationResult... results) {
+            this.results = results;
         }
 
-        public void mapFailures(BiConsumer<Boolean, String> biConsumer) {
-            Stream.of(destinationMatchResult)
+        public void forEachFailure(Consumer<String> consumer) {
+            Stream.of(results)
                     .filter(VerificationResult::isFailure)
-                    .forEach(verificationResult -> biConsumer.accept(verificationResult.success, verificationResult.errorMessage));
+                    .forEach(curResult -> consumer.accept(curResult.errorMessage));
         }
     }
 
     public static class Verification {
-        public static VerificationResultBuilder verify(CheckedSupplier<Boolean> supplier) {
+        public static VerificationResultBuilder verification(CheckedSupplier<Boolean> supplier) {
             return new VerificationResultBuilder(supplier);
         }
     }

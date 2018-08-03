@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.salvatorenovelli.redirectcheck.model.VerificationResult.Verification.verify;
+import static com.github.salvatorenovelli.redirectcheck.model.EscapedUriComparator.compare;
+import static com.github.salvatorenovelli.redirectcheck.model.VerificationResult.Verification.verification;
 
 @EqualsAndHashCode
 public class RedirectCheckResponse {
@@ -63,12 +64,11 @@ public class RedirectCheckResponse {
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
 
-        VerificationResult
-                .forEach(
-                        verify(() -> EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI)).orErrorMessage(DESTINATION_MISMATCH),
-                        verify(() -> lastHttpStatus == request.getExpectedStatusCode()).orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode()),
-                        verify(() -> isPermanentRedirect()).orErrorMessage(NON_PERMANENT_REDIRECT)
-                ).mapFailures((isSuccess, errorMessage) -> {
+        VerificationResult.of(
+                verification(() -> compare(actualDestinationURI, request.getExpectedDestination())).orErrorMessage(DESTINATION_MISMATCH),
+                verification(() -> lastHttpStatus == request.getExpectedStatusCode()).orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode()),
+                verification(() -> isPermanentRedirect()).orErrorMessage(NON_PERMANENT_REDIRECT)
+        ).forEachFailure((errorMessage) -> {
             status = Status.FAILURE;
             statusMessage = addStatusMessage(errorMessage);
         });
