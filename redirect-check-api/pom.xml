@@ -7,7 +7,7 @@
 
     <groupId>com.github.salvatorenovelli.redirect-check</groupId>
     <artifactId>redirect-check-api</artifactId>
-    <version>1.0.17</version>
+    <version>1.0.18</version>
 
     <properties>
         <slf4j.version>1.6.4</slf4j.version>

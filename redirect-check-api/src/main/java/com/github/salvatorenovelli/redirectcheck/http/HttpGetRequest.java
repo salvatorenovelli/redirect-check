@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 public class HttpGetRequest implements HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpGetRequest.class);
+    public static final int DEFAULT_TIMEOUT = 30000;
     private final URI uri;
     private final ConnectionFactory connectionFactory;
 
@@ -33,6 +34,7 @@ public class HttpGetRequest implements HttpRequest {
 
         connection.setRequestMethod("GET");
         connection.setInstanceFollowRedirects(false);
+        connection.setConnectTimeout(DEFAULT_TIMEOUT);
         connection.connect();
 
         URI dstURI = uri;
