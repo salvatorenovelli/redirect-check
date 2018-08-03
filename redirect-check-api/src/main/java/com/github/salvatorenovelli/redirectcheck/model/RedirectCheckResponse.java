@@ -15,6 +15,10 @@ public class RedirectCheckResponse {
     static final String STATUS_CODE_MISMATCH = "Status is not ";
     static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
 
+    private boolean statusCodeMatch = true;
+    private boolean destinationMatch = true;
+    private boolean permanentRedirect = true;
+
     private final String sourceURI;
     private final String expectedDestinationURI;
     private String actualDestinationURI;
@@ -57,38 +61,37 @@ public class RedirectCheckResponse {
         this.lastHttpStatus = redirectChain.getLastHttpStatus();
         this.numberOfRedirects = redirectChain.getNumOfRedirect();
 
-        verifyDestinationMismatch(request);
-        verifyStatusCodeMismatch(request);
-        verifyDirtyRedirect();
-
-    }
-
-    private void verifyDirtyRedirect() {
-        if (!isCleanRedirect()) {
+        VerificationResult
+                .forEach(
+                        verifyDestinationMismatch(request),
+                        verifyStatusCodeMismatch(request),
+                        verifyPermanentRedirect()
+                ).mapFailures((isSuccess, errorMessage) -> {
             status = Status.FAILURE;
-            statusMessage = addStatusMessage(NON_PERMANENT_REDIRECT);
-        }
+            statusMessage = addStatusMessage(errorMessage);
+        });
     }
 
-    private void verifyStatusCodeMismatch(RedirectSpecification request) {
-        if (lastHttpStatus != request.getExpectedStatusCode()) {
-            status = Status.FAILURE;
-            statusMessage = addStatusMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode());
-        }
-    }
-
-    private void verifyDestinationMismatch(RedirectSpecification request) {
-        boolean compare = false;
+    private VerificationResult verifyDestinationMismatch(RedirectSpecification request) {
         try {
-            compare = EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI);
+            return VerificationResult
+                    .assertTrue(EscapedUriComparator.compare(request.getExpectedDestination(), actualDestinationURI))
+                    .orErrorMessage(DESTINATION_MISMATCH);
         } catch (URISyntaxException e) {
-            //Will be failing on the next lines
+            return VerificationResult.failure(e.getMessage());
         }
+    }
 
-        if (!compare) {
-            status = Status.FAILURE;
-            statusMessage = addStatusMessage(DESTINATION_MISMATCH);
-        }
+    private VerificationResult verifyStatusCodeMismatch(RedirectSpecification request) {
+        return VerificationResult
+                .assertTrue(lastHttpStatus == request.getExpectedStatusCode())
+                .orErrorMessage(STATUS_CODE_MISMATCH + request.getExpectedStatusCode());
+    }
+
+    private VerificationResult verifyPermanentRedirect() {
+        return VerificationResult
+                .assertTrue(isCleanRedirect())
+                .orErrorMessage(NON_PERMANENT_REDIRECT);
     }
 
     private String addStatusMessage(String status) {
@@ -165,4 +168,5 @@ public class RedirectCheckResponse {
     public enum Status {
         SUCCESS, FAILURE
     }
+
 }

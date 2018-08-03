@@ -51,7 +51,7 @@ public class RedirectCheckResponseTest {
     @Test
     public void invalidDestingTionIsMarkedAsFailure() throws Exception {
         testChain.addElement(new RedirectChainElement(200, new URI("http://destination")));
-        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://www.example.com", "http://invalidDst invalid", 200);
+        RedirectSpecification specWithInvalidDestination = RedirectSpecification.createValid(0, "http://www.example.com", "http://invalidDstinvalid", 200);
 
         RedirectCheckResponse response = RedirectCheckResponse.createResponse(specWithInvalidDestination, testChain);
         assertThat(response.getStatus(), is(FAILURE));
