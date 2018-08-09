@@ -34,8 +34,7 @@ public class DefaultRedirectChainAnalyser implements RedirectChainAnalyser {
      * Open an HTTP connection to the provided {@link URI} and follow the redirects if they exists.
      *
      * @return an object that describes the chain of redirect that the startURI lead to.
-     *
-     * */
+     */
     @Override
     public RedirectChain analyseRedirectChain(String startURI) {
 
@@ -60,16 +59,14 @@ public class DefaultRedirectChainAnalyser implements RedirectChainAnalyser {
             }
 
 
-        } catch (IOException | IllegalArgumentException | URISyntaxException e) {
-            logger.warn("Error while analysing {}: {}", startURI, e.toString());
-            result.markAsFailed(e.toString());
         } catch (RedirectLoopException e) {
             result.markAsRedirectLoop();
+        } catch (Exception e) {
+            logger.warn("Error while analysing {}: {}", startURI, e.toString());
+            result.markAsFailed(e.toString());
         }
 
         return result;
-
-
     }
 
     private URI getAbsoluteURI(String startURI) throws URISyntaxException {

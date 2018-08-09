@@ -9,7 +9,7 @@ public class RedirectCheckResponseFactory {
         return RedirectCheckResponse.createResponse(spec, redirectChain);
     }
 
-    public RedirectCheckResponse createResponseForInvalidSpec(RedirectSpecification spec) {
-        return RedirectCheckResponse.createResponseForInvalidSpec(spec);
+    public RedirectCheckResponse createResponseForError(String errorMessage, RedirectSpecification spec) {
+        return RedirectCheckResponse.createResponseForError(errorMessage, spec);
     }
 }

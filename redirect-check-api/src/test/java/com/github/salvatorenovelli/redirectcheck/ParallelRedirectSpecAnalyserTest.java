@@ -2,14 +2,10 @@ package com.github.salvatorenovelli.redirectcheck;
 
 import com.github.salvatorenovelli.redirectcheck.model.RedirectCheckResponse;
 import com.github.salvatorenovelli.redirectcheck.model.RedirectSpecification;
-
-import com.github.salvatorenovelli.redirectcheck.ParallelRedirectSpecAnalyser;
-import com.github.salvatorenovelli.redirectcheck.RedirectSpecAnalyser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -92,7 +88,7 @@ public class ParallelRedirectSpecAnalyserTest {
 
         for (int i = 0; i < size; i++) {
             RedirectSpecification curSpec = RedirectSpecification.createValid(0, "http://www.example.com/" + i, "http://www.example.com/" + i + "/dst", 200);
-            RedirectCheckResponse curChainResponse = Mockito.mock(RedirectCheckResponse.class);
+            RedirectCheckResponse curChainResponse = mock(RedirectCheckResponse.class);
             when(analyser.checkRedirect(curSpec)).thenReturn(curChainResponse);
             spec.add(curSpec);
             expectedResponses.add(curChainResponse);

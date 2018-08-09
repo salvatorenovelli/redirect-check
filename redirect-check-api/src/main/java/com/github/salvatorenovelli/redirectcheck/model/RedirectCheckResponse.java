@@ -38,15 +38,15 @@ public class RedirectCheckResponse {
         return new RedirectCheckResponse(request, redirectChain);
     }
 
-    public static RedirectCheckResponse createResponseForInvalidSpec(RedirectSpecification request) {
-        return new RedirectCheckResponse(request);
+    public static RedirectCheckResponse createResponseForError(String errorMessage, RedirectSpecification request) {
+        return new RedirectCheckResponse(errorMessage, request);
     }
 
-    private RedirectCheckResponse(RedirectSpecification invalidRequest) {
-        assertTrue(!invalidRequest.isValid(), "This constructor should be used only for invalid spec requests.");
+
+    private RedirectCheckResponse(String errorMessage, RedirectSpecification request) {
         status = Status.FAILURE;
-        statusMessage = invalidRequest.getErrorMessage();
-        requestLineNumber = invalidRequest.getLineNumber();
+        statusMessage = errorMessage;
+        requestLineNumber = request.getLineNumber();
         sourceURI = "n/a";
         expectedDestinationURI = "n/a";
         redirectChain = Collections.emptyList();
@@ -110,7 +110,18 @@ public class RedirectCheckResponse {
         return "RedirectCheckResponse{" +
                 "status=" + status +
                 ", statusMessage='" + statusMessage + "'" +
+                addFlagsMessage() +
                 '}';
+    }
+
+    private String addFlagsMessage() {
+        if (redirectChain.size() > 0) {
+            return (!destinationMatch ? ", DestinationMismatch" : "") +
+                    (!statusCodeMatch ? ", StatusCodeMismatch" : "") +
+                    (!isPermanentRedirect() ? ", NonPermanentRedirect" : "");
+        } else {
+            return "";
+        }
     }
 
     public String getSourceURI() {
