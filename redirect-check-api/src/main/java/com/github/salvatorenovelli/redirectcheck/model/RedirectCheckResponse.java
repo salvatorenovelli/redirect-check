@@ -17,8 +17,8 @@ public class RedirectCheckResponse {
     static final String NON_PERMANENT_REDIRECT = "Non permanent redirect";
 
     private boolean generalFailure = false;
-    private boolean statusCodeMatch = true;
-    private boolean destinationMatch = true;
+    private boolean statusCodeMatch = false;
+    private boolean destinationMatch = false;
 
     private final String sourceURI;
     private final String expectedDestinationURI;

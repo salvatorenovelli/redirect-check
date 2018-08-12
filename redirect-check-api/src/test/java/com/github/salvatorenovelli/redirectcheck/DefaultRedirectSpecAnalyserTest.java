@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Executors;
 
 import static com.github.salvatorenovelli.redirectcheck.model.RedirectCheckResponse.Status.FAILURE;
@@ -106,6 +107,21 @@ public class DefaultRedirectSpecAnalyserTest {
 
         assertThat(redirectCheckResponse.getStatus(), is(FAILURE));
         assertThat(redirectCheckResponse.getStatusMessage(), is("This is an invalid spec"));
+    }
+
+
+    @Test(timeout = 1000)
+    public void invalidUrlShouldReportAllFlagAsFalse() {
+
+        when(analyser.analyseRedirectChain(any())).then(invocationOnMock -> {
+            throw new URISyntaxException("Input", "Reason");
+        });
+
+        RedirectCheckResponse redirectCheckResponse = sut.checkRedirect(TEST_SPEC);
+
+        assertThat(redirectCheckResponse.isDestinationMatch(), is(false));
+        assertThat(redirectCheckResponse.isStatusCodeMatch(), is(false));
+        assertThat(redirectCheckResponse.isPermanentRedirect(), is(false));
     }
 
 }

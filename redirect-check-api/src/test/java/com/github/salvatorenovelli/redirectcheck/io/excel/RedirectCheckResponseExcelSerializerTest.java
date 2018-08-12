@@ -110,6 +110,18 @@ public class RedirectCheckResponseExcelSerializerTest {
         assertThat(getFieldValue(workbookFilename, REDIRECT_STATUS_ERROR_COLUMN), is("This was a total failure!"));
     }
 
+    @Test
+    public void invalidSpecShouldReportOtherFieldsAsNA() throws Exception {
+        String workbookFilename = givenAnExcelWorkbook()
+                .serializeInvalidSpec("This was a total failure!");
+
+        assertThat(getFieldValue(workbookFilename, GENERAL_STATUS_COLUMN), is(FAILURE));
+        assertThat(getFieldValue(workbookFilename, REDIRECT_STATUS_ERROR_COLUMN), is("This was a total failure!"));
+
+        assertThat(getFieldValue(workbookFilename, DESTINATION_MATCH_FLAG_COLUMN), is("false"));
+
+    }
+
     private TestWorkbookBuilder givenAnExcelWorkbook() {
         return new TestWorkbookBuilder(temporaryFolder);
     }
